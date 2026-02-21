@@ -1,0 +1,11 @@
+# Build
+target/
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+
+# Environment
+.env
