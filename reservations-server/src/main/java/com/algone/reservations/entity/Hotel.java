@@ -1,18 +1,25 @@
 package com.algone.reservations.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "hotels")
+@Entity /** Označí třídu jako DB entitu, respektive že tahle třída mapuje tabulku databáze */
+@Table(name = "hotels") /** Specifikuje kterou tabulku entita mapuje */
+@Getter  /** Tahle anotace zajišťuje že každý attribut dostane svůj getter, takže místo psaní: public String getName() {} stačí napsat tohle nad třídu a je to globální pro všechny attributy té třídy */
+@Setter /** Funguje stejně ale pro Setter */
+@NoArgsConstructor /** Říká že třída má prázdný konstruktor, nahrazuje psaní: public Hotel() {} */
 public class Hotel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id /** Označí attribut jako prímární klíč */
+    @GeneratedValue(strategy = GenerationType.IDENTITY) /** Specifikuje jak se hodnota generuje, tenhle případ odpovídá auto increment */
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false) /** Tohle umožňuje konfigurovat sloupce, délku, název, nullable atd... */
     private String name;
 
     @Column(columnDefinition = "TEXT")
@@ -47,45 +54,4 @@ public class Hotel {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    public Hotel() {}
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-
-    public String getAddressLine() { return addressLine; }
-    public void setAddressLine(String addressLine) { this.addressLine = addressLine; }
-
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
-
-    public String getZip() { return zip; }
-    public void setZip(String zip) { this.zip = zip; }
-
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
-
-    public LocalTime getCheckInFrom() { return checkInFrom; }
-    public void setCheckInFrom(LocalTime checkInFrom) { this.checkInFrom = checkInFrom; }
-
-    public LocalTime getCheckOutUntil() { return checkOutUntil; }
-    public void setCheckOutUntil(LocalTime checkOutUntil) { this.checkOutUntil = checkOutUntil; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

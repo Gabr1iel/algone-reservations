@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api")
+@RestController /** Označuje třídu jako orchestrátora CRUD operací, takže když přijde HTTP request typu GET, SET, PUT, DELETE tak tady se vytváří API endpointy  */
+@RequestMapping("/api") /** Společná část URL */
 public class HotelController {
 
     private final HotelService hotelService;

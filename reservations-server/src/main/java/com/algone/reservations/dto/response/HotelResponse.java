@@ -1,8 +1,11 @@
 package com.algone.reservations.dto.response;
 
 import com.algone.reservations.entity.Hotel;
+import lombok.Getter;
+
 import java.time.LocalTime;
 
+@Getter
 public class HotelResponse {
 
     private Long id;
@@ -32,16 +35,4 @@ public class HotelResponse {
         response.checkOutUntil = hotel.getCheckOutUntil();
         return response;
     }
-
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public String getEmail() { return email; }
-    public String getPhone() { return phone; }
-    public String getAddressLine() { return addressLine; }
-    public String getCity() { return city; }
-    public String getZip() { return zip; }
-    public String getCountry() { return country; }
-    public LocalTime getCheckInFrom() { return checkInFrom; }
-    public LocalTime getCheckOutUntil() { return checkOutUntil; }
 }
