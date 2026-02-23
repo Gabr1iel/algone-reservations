@@ -20,7 +20,7 @@ jobs:
 
           curl -H "Content-Type: application/json" \
             -d "{
-              \"content\": \"@everyone Změna v main!\",
+              \"content\": \"@Škola  Změna v main!\",
               \"embeds\": [{
                 \"title\": \"New push to main\",
                 \"color\": 5814783,
