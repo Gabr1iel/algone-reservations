@@ -18,9 +18,12 @@ jobs:
           COMMIT_URL="${{ github.event.head_commit.url }}"
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
 
+          ROLE_ID="${{ secrets.DISCORD_ROLE_ID }}"
+
           curl -H "Content-Type: application/json" \
             -d "{
-              \"content\": \"@Škola  Změna v main!\",
+              \"content\": \"<@&${ROLE_ID}>  Změna v main!\",
+              \"allowed_mentions\": { \"roles\": [\"${ROLE_ID}\"] },
               \"embeds\": [{
                 \"title\": \"New push to main\",
                 \"color\": 5814783,
