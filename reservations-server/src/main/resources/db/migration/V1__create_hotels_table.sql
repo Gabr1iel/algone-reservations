@@ -1,0 +1,15 @@
+CREATE TABLE hotels (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NULL,
+    address_line VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    zip VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL DEFAULT 'Česká republika',
+    check_in_from TIME NOT NULL,
+    check_out_until TIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
