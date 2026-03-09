@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS reservations (
                                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                             hotel_id BIGINT NOT NULL,
                                             room_id BIGINT NOT NULL,
-                                            guest_id BIGINT NOT NULL,
+                                            user_id BIGINT NOT NULL,
                                             from_date DATE NOT NULL,
                                             to_date DATE NOT NULL,
                                             status VARCHAR(20) NOT NULL DEFAULT 'CREATED',
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS reservations (
 
     INDEX idx_reservations_hotel_id (hotel_id),
     INDEX idx_reservations_room_id (room_id),
-    INDEX idx_reservations_guest_id (guest_id),
+    INDEX idx_reservations_user_id (user_id),
     INDEX idx_reservations_status (status),
     INDEX idx_reservations_dates (from_date, to_date)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
