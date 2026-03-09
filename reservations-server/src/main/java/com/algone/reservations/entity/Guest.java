@@ -25,14 +25,14 @@ public class Guest {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
+    @Column(length = 255)
+    private String email;
 
-    @Column(name = "document_number", length = 100)
-    private String documentNumber;
+    @Column(length = 20)
+    private String phone;
 
-    @Column(name = "nationality", length = 100)
-    private String nationality;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

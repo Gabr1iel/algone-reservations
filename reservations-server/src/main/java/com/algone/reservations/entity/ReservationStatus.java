@@ -1,8 +1,9 @@
 package com.algone.reservations.entity;
 
 public enum ReservationStatus {
-    CREATED,
+    PENDING,
     CONFIRMED,
-    CANCELLED,
-    COMPLETED
+    CHECKED_IN,
+    COMPLETED,
+    CANCELLED
 }

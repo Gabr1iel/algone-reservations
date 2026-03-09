@@ -31,13 +31,17 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    private PaymentMethod method;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private PaymentStatus status = PaymentStatus.PENDING;
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
-    @Column(name = "transaction_reference", length = 100)
-    private String transactionReference;
+    @Column(name = "provider_ref", length = 100)
+    private String providerRef;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
