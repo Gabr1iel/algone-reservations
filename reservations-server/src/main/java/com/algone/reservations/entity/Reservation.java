@@ -27,8 +27,8 @@ public class Reservation {
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
-    @Column(name = "guest_id", nullable = false)
-    private Long guestId;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "from_date", nullable = false)
     private LocalDate fromDate;
