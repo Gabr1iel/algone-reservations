@@ -18,7 +18,7 @@ public class ReservationService {
 
     public Reservation createReservation(Reservation reservation) {
         if (reservation.getStatus() == null) {
-            reservation.setStatus(ReservationStatus.CREATED);
+            reservation.setStatus(ReservationStatus.PENDING);
         }
 
         validateReservationDates(reservation);
@@ -66,21 +66,23 @@ public class ReservationService {
 
     private boolean isTransitionAllowed(ReservationStatus currentStatus, ReservationStatus newStatus) {
         return switch (currentStatus) {
-            case CREATED -> newStatus == ReservationStatus.CONFIRMED
+            case PENDING -> newStatus == ReservationStatus.CONFIRMED
                     || newStatus == ReservationStatus.CANCELLED;
-            case CONFIRMED -> newStatus == ReservationStatus.CANCELLED
-                    || newStatus == ReservationStatus.COMPLETED;
-            case CANCELLED, COMPLETED -> false;
+            case CONFIRMED -> newStatus == ReservationStatus.CHECKED_IN
+                    || newStatus == ReservationStatus.CANCELLED;
+            case CHECKED_IN -> newStatus == ReservationStatus.COMPLETED
+                    || newStatus == ReservationStatus.CANCELLED;
+            case COMPLETED, CANCELLED -> false;
         };
     }
 
     private void validateReservationDates(Reservation reservation) {
-        if (reservation.getFromDate() == null || reservation.getToDate() == null) {
+        if (reservation.getCheckIn() == null || reservation.getCheckOut() == null) {
             throw new IllegalArgumentException("Reservation dates must not be null.");
         }
 
-        if (!reservation.getFromDate().isBefore(reservation.getToDate())) {
-            throw new IllegalArgumentException("fromDate must be before toDate.");
+        if (!reservation.getCheckIn().isBefore(reservation.getCheckOut())) {
+            throw new IllegalArgumentException("Check-in date must be before check-out date.");
         }
     }
 }

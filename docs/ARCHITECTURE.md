@@ -102,9 +102,9 @@ Další soubory v kořenu:
                                    /      \
                         room_amenities   reservations ──1:N──> payments
                               |          /          \
-                          amenities   users    reservation_guests
+                          amenities   users    reservation_special_requests
                                                      |
-                                                   guests
+                                               special_request_types
 ```
 
 ### Přehled tabulek (11)
@@ -120,8 +120,8 @@ Další soubory v kořenu:
 | 7 | `room_amenities` | M:N vazba | Spojení pokojů s vybavením |
 | 8 | `reservations` | Entita | Rezervace se stavovým automatem |
 | 9 | `payments` | Entita | Platby k rezervacím |
-| 10 | `guests` | Entita | Hosté (osoby na pokoji) |
-| 11 | `reservation_guests` | M:N vazba | Přiřazení hostů k rezervacím |
+| 10 | `special_request_types` | Číselník | Typy speciálních požadavků (EXTRA_BED, LATE_CHECKOUT…) |
+| 11 | `reservation_special_requests` | Entita | Speciální požadavky k rezervacím |
 
 ---
 
@@ -177,7 +177,7 @@ Registrovaní uživatelé systému. Role ADMIN je globální (spravuje všechny 
 | `hotel_id` | BIGINT | NOT NULL | FK → `hotels.id` |
 | `name` | VARCHAR(50) | NOT NULL | Název typu (Single, Double, Suite, Deluxe) |
 | `description` | TEXT | NULL | Popis typu pokoje |
-| `max_capacity` | INT | NOT NULL | Výchozí maximální kapacita pro tento typ |
+| `max_capacity` | TINYINT | NOT NULL | Výchozí maximální kapacita pro tento typ |
 | `base_price` | DECIMAL(10,2) | NOT NULL | Výchozí základní cena za noc |
 
 **Indexy:** `UNIQUE(hotel_id, name)`
@@ -197,7 +197,7 @@ Konkrétní pokoje v hotelu. Admin může znepřístupnit pokoj přes `is_active
 | `hotel_id` | BIGINT | NOT NULL | FK → `hotels.id` |
 | `room_type_id` | BIGINT | NOT NULL | FK → `room_types.id` |
 | `room_number` | VARCHAR(10) | NOT NULL | Číslo pokoje (např. "101", "205A") |
-| `capacity` | INT | NOT NULL | Maximální počet hostů (override z room_types.max_capacity) |
+| `capacity` | TINYINT | NOT NULL | Maximální kapacita pokoje (override z room_types.max_capacity) |
 | `price_per_night` | DECIMAL(10,2) | NOT NULL | Cena za noc v CZK (override z room_types.base_price) |
 | `description` | TEXT | NULL | Popis pokoje |
 | `is_active` | BOOLEAN | NOT NULL | Dostupnost (admin může znepřístupnit — opravy, údržba, default TRUE) |
@@ -306,37 +306,39 @@ Platby přiřazené k rezervacím. Jedna rezervace může mít více plateb (nap
 
 ---
 
-### Tabulka `guests` — Hosté
+### Tabulka `special_request_types` — Typy speciálních požadavků (číselník)
 
-Osoby ubytované v rámci rezervace. Oddělená entita od `users` — host nemusí být registrovaný uživatel.
+Globální číselník typů speciálních požadavků k rezervacím.
 
 | Sloupec | Typ | Nullable | Popis |
 |---|---|---|---|
 | `id` | BIGINT AUTO_INCREMENT | NOT NULL | PK |
-| `first_name` | VARCHAR(100) | NOT NULL | Křestní jméno |
-| `last_name` | VARCHAR(100) | NOT NULL | Příjmení |
-| `email` | VARCHAR(255) | NULL | Email (volitelný) |
-| `phone` | VARCHAR(20) | NULL | Telefon (volitelný) |
-| `birth_date` | DATE | NULL | Datum narození (volitelné) |
-| `created_at` | DATETIME | NOT NULL | Datum vytvoření |
-| `updated_at` | DATETIME | NOT NULL | Datum poslední změny |
+| `code` | VARCHAR(50) | NOT NULL | Unikátní kód (EXTRA_BED, LATE_CHECKOUT, EARLY_CHECKIN…) |
+| `name` | VARCHAR(100) | NOT NULL | Zobrazovaný název |
+| `description` | TEXT | NULL | Popis požadavku |
+
+**Indexy:** `UNIQUE(code)`
+
+**Seed data (příklad):** EXTRA_BED, LATE_CHECKOUT, EARLY_CHECKIN, BABY_COT, PARKING, AIRPORT_TRANSFER, QUIET_ROOM, HIGH_FLOOR
 
 ---
 
-### Tabulka `reservation_guests` — Hosté na rezervaci (M:N)
+### Tabulka `reservation_special_requests` — Speciální požadavky k rezervacím
 
-Spojovací tabulka — kteří hosté jsou přiřazeni ke které rezervaci.
+Speciální požadavky přiřazené k rezervacím. Uživatel může při vytváření rezervace přidat jeden či více požadavků s volitelnou poznámkou.
 
 | Sloupec | Typ | Nullable | Popis |
 |---|---|---|---|
+| `id` | BIGINT AUTO_INCREMENT | NOT NULL | PK |
 | `reservation_id` | BIGINT | NOT NULL | FK → `reservations.id` |
-| `guest_id` | BIGINT | NOT NULL | FK → `guests.id` |
-| `is_primary` | BOOLEAN | NOT NULL | Hlavní host na rezervaci (default FALSE) |
+| `special_request_type_id` | BIGINT | NOT NULL | FK → `special_request_types.id` |
+| `note` | TEXT | NULL | Volitelná poznámka k požadavku |
+| `created_at` | DATETIME | NOT NULL | Datum vytvoření |
 
-**PK:** `(reservation_id, guest_id)` — složený primární klíč
+**Indexy:** `INDEX(reservation_id)`, `INDEX(special_request_type_id)`
 **FK:**
-- `fk_reservation_guests_reservations` → `reservations(id)` ON DELETE CASCADE
-- `fk_reservation_guests_guests` → `guests(id)` ON DELETE CASCADE
+- `fk_res_special_req_reservations` → `reservations(id)` ON DELETE CASCADE
+- `fk_res_special_req_types` → `special_request_types(id)` ON DELETE RESTRICT
 
 ---
 
@@ -425,9 +427,8 @@ Pojmenovaná pravidla vynucovaná na backendu (autoritativní) i na frontendu (U
 | `RULE_CHECKIN_BEFORE_CHECKOUT` | Datum check-in musí být striktně před datem check-out. |
 | `RULE_CHECKIN_NOT_IN_PAST` | Datum check-in nesmí být v minulosti. |
 | `RULE_RESERVATION_MAX_DURATION` | Maximální délka pobytu je 30 nocí. |
-| `RULE_ROOM_NOT_DOUBLE_BOOKED` | Pokoj nesmí mít překrývající se potvrzené/aktivní rezervace ve stejném termínu. |
+| `RULE_ROOM_NOT_DOUBLE_BOOKED` | Pokoj nesmí mít překrývající se aktivní rezervace (stav != CANCELLED) ve stejném termínu. Overlap: `existing.check_in < new.check_out AND existing.check_out > new.check_in`. |
 | `RULE_ROOM_MUST_BE_ACTIVE` | Rezervaci lze vytvořit pouze na aktivní pokoj (`is_active = true`). |
-| `RULE_GUEST_COUNT_WITHIN_CAPACITY` | Počet hostů (z `reservation_guests`) nesmí překročit kapacitu pokoje. |
 | `RULE_ONLY_OWNER_CAN_CANCEL` | Uživatel může zrušit pouze své vlastní rezervace (admin může všechny). |
 | `RULE_CANCEL_ONLY_PENDING_OR_CONFIRMED` | Uživatel může zrušit rezervaci pouze ve stavu PENDING nebo CONFIRMED. |
 | `RULE_STATUS_TRANSITION_VALID` | Změna stavu rezervace musí respektovat stavový automat. |
@@ -471,6 +472,8 @@ Pojmenovaná pravidla vynucovaná na backendu (autoritativní) i na frontendu (U
 |---|---|---|---|
 | GET | `/api/rooms` | Seznam dostupných pokojů (filtr, stránkování) | Veřejný |
 | GET | `/api/rooms/{id}` | Detail pokoje (vč. amenities a obrázků) | Veřejný |
+| GET | `/api/rooms/available` | Dostupné pokoje v termínu (`?checkIn=…&checkOut=…&hotelId=…`) | Veřejný |
+| GET | `/api/rooms/{id}/calendar` | Obsazenost pokoje v období (`?from=…&to=…`) — pro kalendářový pohled | Veřejný |
 | POST | `/api/rooms` | Vytvoření pokoje | Admin |
 | PUT | `/api/rooms/{id}` | Úprava pokoje | Admin |
 | PATCH | `/api/rooms/{id}/active` | Aktivace / deaktivace pokoje | Admin |
@@ -494,13 +497,13 @@ Pojmenovaná pravidla vynucovaná na backendu (autoritativní) i na frontendu (U
 | GET | `/api/reservations/{id}/payments` | Platby k rezervaci | User (vlastní) / Admin |
 | PATCH | `/api/payments/{id}/status` | Změna stavu platby | Admin |
 
-### Hosté
+### Speciální požadavky
 
 | Metoda | Endpoint | Popis | Role |
 |---|---|---|---|
-| POST | `/api/reservations/{id}/guests` | Přidání hosta k rezervaci | User (vlastní) / Admin |
-| GET | `/api/reservations/{id}/guests` | Seznam hostů na rezervaci | User (vlastní) / Admin |
-| DELETE | `/api/reservations/{resId}/guests/{guestId}` | Odebrání hosta z rezervace | User (vlastní) / Admin |
+| POST | `/api/reservations/{id}/special-requests` | Přidání speciálního požadavku k rezervaci | User (vlastní) / Admin |
+| GET | `/api/reservations/{id}/special-requests` | Seznam speciálních požadavků na rezervaci | User (vlastní) / Admin |
+| DELETE | `/api/reservations/{resId}/special-requests/{requestId}` | Odebrání speciálního požadavku z rezervace | User (vlastní) / Admin |
 
 ### Uživatelé
 
@@ -518,6 +521,7 @@ Pojmenovaná pravidla vynucovaná na backendu (autoritativní) i na frontendu (U
 |---|---|---|---|
 | GET | `/api/room-types` | Seznam typů pokojů | Veřejný |
 | GET | `/api/amenities` | Seznam vybavení | Veřejný |
+| GET | `/api/special-request-types` | Seznam typů speciálních požadavků | Veřejný |
 
 ---
 

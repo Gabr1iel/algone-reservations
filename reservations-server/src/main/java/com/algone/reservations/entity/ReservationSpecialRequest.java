@@ -8,24 +8,26 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reservation_guests")
+@Table(name = "reservation_special_requests")
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReservationGuest {
+public class ReservationSpecialRequest {
 
-    @EmbeddedId
-    private ReservationGuestId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("reservationId")
     @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("guestId")
-    @JoinColumn(name = "guest_id", nullable = false)
-    private Guest guest;
+    @JoinColumn(name = "special_request_type_id", nullable = false)
+    private SpecialRequestType specialRequestType;
+
+    @Column(columnDefinition = "TEXT")
+    private String note;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
