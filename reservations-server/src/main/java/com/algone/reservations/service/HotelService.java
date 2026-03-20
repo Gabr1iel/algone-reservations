@@ -5,6 +5,7 @@ import com.algone.reservations.repository.HotelRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HotelService {
@@ -16,6 +17,8 @@ public class HotelService {
     }
 
     public List<Hotel> getAllHotels() {
-        return hotelRepository.findAll();
+        return hotelRepository.findAllHotels();
     }
+
+    public Optional<Hotel> findHotelById(long id) {return hotelRepository.findHotelById(id);}
 }

@@ -1,42 +1,57 @@
-import { selectViewState } from '../selectors/selectors.js';
-import { createHandlers } from '../handlers/createHandlers.js';
+import { selectViewState, selectLayoutData } from '../selectors/selectors.js';
+import { createHandlers, createLayoutHandlers } from '../handlers/createHandlers.js';
 
+import { Layout } from './components/Layout.js';
 import { LoadingView } from './components/LoadingView.js';
 import { ErrorView } from './components/ErrorView.js';
 import { HotelListView } from './pages/HotelListView.js';
+import { HotelDetailView } from './pages/HotelDetailView.js';
+import { LoginView } from './pages/LoginView.js';
 
 export function render(root, state, dispatch) {
   root.replaceChildren();
 
   const viewState = selectViewState(state);
   const handlers = createHandlers(dispatch, viewState);
+  const layoutData = selectLayoutData(state);
+  const layoutHandlers = createLayoutHandlers(dispatch);
 
-  let view;
+  let contentElement;
 
   switch (viewState.type) {
     case 'LOADING':
-      view = LoadingView();
+      contentElement = LoadingView();
       break;
 
     case 'ERROR':
-      view = ErrorView({ message: viewState.message, handlers });
+      contentElement = ErrorView({ message: viewState.message, handlers });
       break;
 
     case 'HOTEL_LIST':
-      view = HotelListView({ viewState, handlers });
+      contentElement = HotelListView({ viewState, handlers });
+      break;
+
+    case 'HOTEL_DETAIL':
+      contentElement = HotelDetailView({ viewState, handlers });
+      break;
+
+    case 'LOGIN':
+      contentElement = LoginView({ viewState, handlers });
       break;
 
     default:
-      view = document.createTextNode(`Unknown view type: ${viewState.type}`);
+      contentElement = document.createTextNode(`Unknown view type: ${viewState.type}`);
   }
 
-  root.appendChild(view);
+  const isFullWidth = state.ui.mode === 'HOTEL_LIST';
 
-  const { notification } = state.ui;
-  if (notification) {
-    const notificationElement = document.createElement('div');
-    notificationElement.textContent = notification.message;
-    notificationElement.classList.add('notification');
-    root.appendChild(notificationElement);
-  }
+  const layout = Layout({
+    hotelName: layoutData.hotelName,
+    auth: layoutData.auth,
+    handlers: layoutHandlers,
+    contentElement,
+    fullWidth: isFullWidth,
+  });
+
+  root.appendChild(layout);
 }
