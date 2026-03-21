@@ -5,6 +5,7 @@ import com.algone.reservations.dto.request.RegisterRequest;
 import com.algone.reservations.dto.response.AuthResponse;
 import com.algone.reservations.entity.User;
 import com.algone.reservations.entity.UserRole;
+import com.algone.reservations.exception.auth.EmailAlreadyExistsException;
 import com.algone.reservations.repository.UserRepository;
 import com.algone.reservations.security.CustomUserDetails;
 import com.algone.reservations.security.JwtProvider;
@@ -25,7 +26,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Uživatel s tímto emailem už existuje!");
+            throw new EmailAlreadyExistsException("Uživatel s tímto emailem už existuje!");
         }
 
         User user = new User();
