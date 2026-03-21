@@ -181,7 +181,7 @@ export function HotelListView({ viewState, handlers }) {
   // ═══════════════════════════════════════════════
   const footer = document.createElement('footer');
   footer.className = 'bg-slate-800 text-slate-400 text-center text-sm py-8';
-  footer.innerHTML = '&copy; 2026 Algone Reservations. Všechna práva vyhrazena.';
+  footer.textContent = '\u00A9 2026 Algone Reservations. Všechna práva vyhrazena.';
 
   container.appendChild(footer);
 

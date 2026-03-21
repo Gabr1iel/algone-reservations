@@ -19,6 +19,7 @@ export function createInitialState() {
       errorMessage: null,
       notification: null,
       loginError: null,
+      registerError: null,
       isSubmitting: false,
       returnAction: null,
     },

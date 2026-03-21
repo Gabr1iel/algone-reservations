@@ -82,7 +82,10 @@ export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = 
       const link = document.createElement('button');
       link.className =
         'flex items-center gap-3 px-6 py-3 text-sm text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-colors text-left';
-      link.innerHTML = `<span>${item.icon}</span> ${item.label}`;
+      const iconSpan = document.createElement('span');
+      iconSpan.textContent = item.icon;
+      link.appendChild(iconSpan);
+      link.appendChild(document.createTextNode(' ' + item.label));
       link.addEventListener('click', () => handlers.onNavigate(item.action));
       nav.appendChild(link);
     });

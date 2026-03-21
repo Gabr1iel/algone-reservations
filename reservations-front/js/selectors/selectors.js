@@ -47,6 +47,14 @@ export function selectLoginView(state) {
   };
 }
 
+export function selectRegisterView(state) {
+  return {
+    type: 'REGISTER',
+    registerError: state.ui.registerError ?? null,
+    isSubmitting: state.ui.isSubmitting ?? false,
+  }
+}
+
 export function selectLayoutData(state) {
   return {
     hotelName: selectHotelName(state),
@@ -76,6 +84,8 @@ export function selectViewState(state) {
       return selectHotelDetailView(state);
     case 'LOGIN':
       return selectLoginView(state);
+    case 'REGISTER':
+      return selectRegisterView(state);
     default:
       return { type: 'ERROR', message: `Unknown ui mode: ${mode}` };
   }

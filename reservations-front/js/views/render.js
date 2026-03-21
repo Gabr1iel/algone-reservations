@@ -7,6 +7,7 @@ import { ErrorView } from './components/ErrorView.js';
 import { HotelListView } from './pages/HotelListView.js';
 import { HotelDetailView } from './pages/HotelDetailView.js';
 import { LoginView } from './pages/LoginView.js';
+import { RegisterView } from './pages/RegisterView.js';
 
 export function render(root, state, dispatch) {
   root.replaceChildren();
@@ -37,6 +38,10 @@ export function render(root, state, dispatch) {
 
     case 'LOGIN':
       contentElement = LoginView({ viewState, handlers });
+      break;
+
+    case 'REGISTER':
+      contentElement = RegisterView({ viewState, handlers });
       break;
 
     default:

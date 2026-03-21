@@ -6,7 +6,7 @@ export function HotelDetailView({ viewState, handlers }) {
   const backBtn = document.createElement('button');
   backBtn.className =
     'flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 mb-6 transition-colors';
-  backBtn.innerHTML = '&larr; Zpět na seznam hotelů';
+  backBtn.textContent = '\u2190 Zpět na seznam hotelů';
   backBtn.addEventListener('click', handlers.onGoBack);
   container.appendChild(backBtn);
 

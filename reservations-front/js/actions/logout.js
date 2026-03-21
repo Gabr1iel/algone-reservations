@@ -11,5 +11,6 @@ export function logout({ store, dispatch }) {
     },
   }));
 
-  dispatch({ type: 'ENTER_HOTEL_LIST' });
+  const returnAction = store.getState().ui.returnAction ?? { type: 'ENTER_HOTEL_LIST' };
+  dispatch(returnAction);
 }

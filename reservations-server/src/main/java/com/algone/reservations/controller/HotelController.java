@@ -2,6 +2,7 @@ package com.algone.reservations.controller;
 
 import com.algone.reservations.dto.response.HotelResponse;
 import com.algone.reservations.service.HotelService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +15,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class HotelController {
 
     private final HotelService hotelService;
-
-    public HotelController(HotelService hotelService) {
-        this.hotelService = hotelService;
-    }
 
     @GetMapping("/hotels")
     public ResponseEntity<Map<String, Object>> getAllHotels() {

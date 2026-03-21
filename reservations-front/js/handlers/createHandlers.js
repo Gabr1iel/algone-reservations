@@ -9,6 +9,9 @@ export function createHandlers(dispatch, viewState) {
     case 'LOGIN':
       return loginHandlers(dispatch, viewState);
 
+    case 'REGISTER':
+      return registerHandlers(dispatch, viewState);
+
     case 'ERROR':
       return errorHandlers(dispatch);
 
@@ -51,6 +54,15 @@ function loginHandlers(dispatch, viewState) {
     onGoToRegister: () => dispatch({ type: 'ENTER_REGISTER' }),
     onGoBack: () => dispatch({ type: 'ENTER_HOTEL_LIST' }),
   };
+}
+
+function registerHandlers(dispatch, viewState) {
+  return {
+    onGoToLogin: () => dispatch({ type: 'ENTER_LOGIN' }),
+    onRegister: (firstName, lastName, email, password) =>
+        dispatch({ type: 'REGISTER_SUBMIT', payload: { firstName, lastName, email, password }}),
+    onGoBack: () => dispatch({ type: 'ENTER_HOTEL_LIST' }),
+  }
 }
 
 function errorHandlers(dispatch) {

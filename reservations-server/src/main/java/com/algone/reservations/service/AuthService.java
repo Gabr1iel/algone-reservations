@@ -41,7 +41,7 @@ public class AuthService {
         CustomUserDetails userDetails = new CustomUserDetails(user);
         String token = jwtProvider.generateToken(userDetails);
 
-        return new AuthResponse(token, user.getEmail(),
+        return new AuthResponse(user.getId(), token, user.getEmail(),
                 user.getFirstName(), user.getLastName(), user.getRole().name());
     }
 
@@ -52,7 +52,7 @@ public class AuthService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String token = jwtProvider.generateToken(userDetails);
 
-        return new AuthResponse(token, userDetails.getEmail(),
+        return new AuthResponse(userDetails.getId(), token, userDetails.getEmail(),
                 userDetails.getFirstName(), userDetails.getLastName(),
                 userDetails.getAuthorities().iterator().next().getAuthority()
                         .replace("ROLE_", ""));

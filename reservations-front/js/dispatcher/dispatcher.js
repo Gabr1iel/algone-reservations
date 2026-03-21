@@ -1,7 +1,9 @@
 import { appInit } from '../actions/appInit.js';
 import { enterHotelList } from '../actions/enterHotelList.js';
 import { enterLogin } from '../actions/enterLogin.js';
+import { enterRegister } from '../actions/enterRegister.js';
 import { loginSubmit } from '../actions/loginSubmit.js';
+import { registerSubmit } from "../actions/registerSubmit.js";
 import { logout } from '../actions/logout.js';
 import { enterHotelDetail } from '../actions/enterHotelDetail.js';
 
@@ -27,8 +29,14 @@ export function createDispatcher(store, api) {
       case 'ENTER_LOGIN':
         return enterLogin({ store });
 
+      case 'ENTER_REGISTER':
+        return enterRegister({ store });
+
       case 'LOGIN_SUBMIT':
         return loginSubmit({ store, api, dispatch, payload });
+
+      case 'REGISTER_SUBMIT':
+        return registerSubmit({ store, api, dispatch, payload });
 
       case 'LOGOUT':
         return logout({ store, dispatch });
