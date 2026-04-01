@@ -12,6 +12,7 @@ export async function enterRoomList({ store, api, payload }) {
       status: 'LOADING',
       selectedHotelId: hotelId,
       errorMessage: null,
+      roomsError: null,
       roomFilters: activeFilters,
     },
   }));

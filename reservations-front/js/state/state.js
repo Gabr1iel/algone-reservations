@@ -25,6 +25,7 @@ export function createInitialState() {
       isSubmitting: false,
       returnAction: null,
       roomsLoading: false,
+      roomsError: null,
       roomFilters: {
         checkIn: '',
         checkOut: '',

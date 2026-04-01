@@ -48,6 +48,7 @@ export function selectRoomListView(state) {
     availableRoomTypes: state.availableRoomTypes ?? [],
     roomFilters: state.ui.roomFilters,
     roomsLoading: state.ui.roomsLoading ?? false,
+    roomsError: state.ui.roomsError ?? null,
   };
 }
 

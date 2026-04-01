@@ -17,15 +17,26 @@ export async function roomSearch({ store, api, payload }) {
   const result = await api.get(`/rooms?${params.toString()}`);
 
   if (result.status === 'SUCCESS') {
+    const rooms = result.rooms ?? [];
+
+    const typeMap = {};
+    rooms.forEach((r) => { typeMap[r.roomTypeId] = r.roomTypeName; });
+    const availableRoomTypes = Object.entries(typeMap).map(([id, name]) => ({ id: Number(id), name }));
+
     store.setState((state) => ({
       ...state,
-      rooms: result.rooms ?? [],
-      ui: { ...state.ui, roomsLoading: false },
+      rooms,
+      availableRoomTypes,
+      ui: { ...state.ui, roomsLoading: false, roomsError: null },
     }));
   } else {
     store.setState((state) => ({
       ...state,
-      ui: { ...state.ui, roomsLoading: false },
+      ui: {
+        ...state.ui,
+        roomsLoading: false,
+        roomsError: result.reason ?? 'Nepodařilo se vyhledat pokoje.',
+      },
     }));
   }
 }
