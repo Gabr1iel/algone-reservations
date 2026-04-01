@@ -57,6 +57,14 @@ export function HotelDetailView({ viewState, handlers }) {
 
   container.appendChild(grid);
 
+  // ── Tlačítko na seznam pokojů ──
+  const roomsBtn = document.createElement('button');
+  roomsBtn.className =
+    'mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors';
+  roomsBtn.textContent = 'Zobrazit dostupné pokoje';
+  roomsBtn.addEventListener('click', () => handlers.onViewRooms(hotel.id));
+  container.appendChild(roomsBtn);
+
   return container;
 }
 

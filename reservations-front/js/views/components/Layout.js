@@ -1,4 +1,4 @@
-export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = false }) {
+export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = false, sidebarContent = null }) {
   const wrapper = document.createElement('div');
   wrapper.className = 'min-h-screen flex flex-col';
 
@@ -90,7 +90,11 @@ export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = 
       nav.appendChild(link);
     });
 
-    sidebar.appendChild(nav);
+    if (sidebarContent) {
+      sidebar.appendChild(sidebarContent);
+    } else {
+      sidebar.appendChild(nav);
+    }
 
     // ── Main ──
     const main = document.createElement('main');

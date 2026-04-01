@@ -2,6 +2,8 @@ export function createInitialState() {
   return {
     hotels: [],
     selectedHotel: null,
+    rooms: [],
+    availableRoomTypes: [],
 
     auth: {
       role: 'ANONYMOUS',
@@ -22,6 +24,15 @@ export function createInitialState() {
       registerError: null,
       isSubmitting: false,
       returnAction: null,
+      roomsLoading: false,
+      roomFilters: {
+        checkIn: '',
+        checkOut: '',
+        capacity: 0,
+        maxPrice: '',
+        roomTypeId: 0,
+        amenityCodes: [],
+      },
     },
   };
 }

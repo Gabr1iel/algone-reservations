@@ -39,6 +39,18 @@ export function selectHotelDetailView(state) {
   };
 }
 
+export function selectRoomListView(state) {
+  return {
+    type: 'ROOM_LIST',
+    hotelName: state.selectedHotel?.name ?? '',
+    hotelId: state.ui.selectedHotelId,
+    rooms: state.rooms ?? [],
+    availableRoomTypes: state.availableRoomTypes ?? [],
+    roomFilters: state.ui.roomFilters,
+    roomsLoading: state.ui.roomsLoading ?? false,
+  };
+}
+
 export function selectLoginView(state) {
   return {
     type: 'LOGIN',
@@ -82,6 +94,8 @@ export function selectViewState(state) {
       return selectHotelListView(state);
     case 'HOTEL_DETAIL':
       return selectHotelDetailView(state);
+    case 'ROOM_LIST':
+      return selectRoomListView(state);
     case 'LOGIN':
       return selectLoginView(state);
     case 'REGISTER':

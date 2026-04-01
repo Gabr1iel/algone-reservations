@@ -19,6 +19,10 @@ export function parseUrl(path) {
     return { context: 'REGISTER' };
   }
 
+  if (parts.length === 3 && parts[0] === 'hotels' && parts[2] === 'rooms') {
+    return { context: 'ROOM_LIST', hotelId: parts[1] };
+  }
+
   if (parts.length === 2 && parts[0] === 'hotels') {
     return { context: 'HOTEL_DETAIL', hotelId: parts[1] };
   }
@@ -36,6 +40,8 @@ export function routeToAction(route) {
       return { type: 'ENTER_REGISTER' };
     case 'HOTEL_DETAIL':
       return { type: 'ENTER_HOTEL_DETAIL', payload: { hotelId: route.hotelId } };
+    case 'ROOM_LIST':
+      return { type: 'ENTER_ROOM_LIST', payload: { hotelId: route.hotelId } };
     case 'UNKNOWN':
       return { type: 'ENTER_HOTEL_LIST' };
   }

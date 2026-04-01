@@ -12,6 +12,9 @@ export function createHandlers(dispatch, viewState) {
     case 'REGISTER':
       return registerHandlers(dispatch, viewState);
 
+    case 'ROOM_LIST':
+      return roomListHandlers(dispatch, viewState);
+
     case 'ERROR':
       return errorHandlers(dispatch);
 
@@ -44,6 +47,19 @@ function hotelListHandlers(dispatch, viewState) {
 function hotelDetailHandlers(dispatch, viewState) {
   return {
     onGoBack: () => dispatch({ type: 'ENTER_HOTEL_LIST' }),
+    onViewRooms: (hotelId) => dispatch({ type: 'ENTER_ROOM_LIST', payload: { hotelId } }),
+    onRoomSearch: (filters) =>
+      dispatch({ type: 'ENTER_ROOM_LIST', payload: { hotelId: viewState.hotel.id, filters } }),
+  };
+}
+
+function roomListHandlers(dispatch, viewState) {
+  return {
+    onGoBack: () => dispatch({ type: 'ENTER_HOTEL_DETAIL', payload: { hotelId: viewState.hotelId } }),
+    onRoomSearch: (filters) =>
+      dispatch({ type: 'ROOM_SEARCH', payload: { filters, hotelId: viewState.hotelId } }),
+    onReserveRoom: (roomId) =>
+      console.log('Rezervace pokoje', roomId), // placeholder — bude implementováno v dalším sprintu
   };
 }
 

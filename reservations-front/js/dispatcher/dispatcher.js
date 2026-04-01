@@ -6,6 +6,8 @@ import { loginSubmit } from '../actions/loginSubmit.js';
 import { registerSubmit } from "../actions/registerSubmit.js";
 import { logout } from '../actions/logout.js';
 import { enterHotelDetail } from '../actions/enterHotelDetail.js';
+import { enterRoomList } from '../actions/enterRoomList.js';
+import { roomSearch } from '../actions/roomSearch.js';
 
 export function createDispatcher(store, api) {
   return async function dispatch(action) {
@@ -37,6 +39,12 @@ export function createDispatcher(store, api) {
 
       case 'REGISTER_SUBMIT':
         return registerSubmit({ store, api, dispatch, payload });
+
+      case 'ENTER_ROOM_LIST':
+        return enterRoomList({ store, api, payload });
+
+      case 'ROOM_SEARCH':
+        return roomSearch({ store, api, payload });
 
       case 'LOGOUT':
         return logout({ store, dispatch });

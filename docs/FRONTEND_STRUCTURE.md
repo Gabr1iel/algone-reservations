@@ -116,22 +116,37 @@ Definuje výchozí (počáteční) stav aplikace.
 ```javascript
 export function createInitialState() {
   return {
-    hotels: [],                           // doménová data
+    hotels: [],                           // seznam hotelů (z /api/hotels)
+    selectedHotel: null,                  // detail vybraného hotelu (z /api/hotels/:id)
+    rooms: [],                            // pokoje pro aktuální hotel (z /api/rooms)
+    availableRoomTypes: [],               // typy pokojů extrahované z aktuálního výsledku rooms
+
     auth: { role: 'ANONYMOUS', ... },     // stav autentizace
+
     ui: {
       mode: 'HOTEL_LIST',                // jaká "stránka" se zobrazuje
       status: 'LOADING',                 // LOADING | READY | ERROR
+      selectedHotelId: null,             // ID aktuálně vybraného hotelu
       errorMessage: null,
       notification: null,
+      roomsLoading: false,               // TRUE při vyhledávání pokojů (ROOM_SEARCH)
+      roomFilters: {                     // aktuálně nastavené filtry
+        checkIn: '',
+        checkOut: '',
+        capacity: 0,
+        maxPrice: '',
+        roomTypeId: 0,
+        amenityCodes: [],
+      },
     },
   };
 }
 ```
 
 **Struktura stavu:**
-- **Doménová data** (`hotels`, budoucí `rooms`, `reservations` atd.) — data z API
+- **Doménová data** (`hotels`, `selectedHotel`, `rooms`, `availableRoomTypes`) — data z API
 - **`auth`** — informace o přihlášeném uživateli
-- **`ui`** — stav uživatelského rozhraní (jaká stránka, jestli se načítá, chybové hlášky)
+- **`ui`** — stav uživatelského rozhraní (jaká stránka, jestli se načítá, chybové hlášky, filtry pokojů)
 
 ### Dobré praktiky
 - Stav je plochý — nepoužívat hluboké zanořování
@@ -153,6 +168,18 @@ urlToRoute()  →  { context: 'HOTEL_LIST' }
          ▼
 routeToAction()  →  { type: 'ENTER_HOTEL_LIST' }
 ```
+
+**Implementované routy:**
+
+| Hash URL | Route context | Action |
+|---|---|---|
+| `#/hotels` | `HOTEL_LIST` | `ENTER_HOTEL_LIST` |
+| `#/login` | `LOGIN` | `ENTER_LOGIN` |
+| `#/register` | `REGISTER` | `ENTER_REGISTER` |
+| `#/hotels/:id` | `HOTEL_DETAIL` | `ENTER_HOTEL_DETAIL` |
+| `#/hotels/:id/rooms` | `ROOM_LIST` | `ENTER_ROOM_LIST` |
+
+> **Pořadí pravidel:** Pattern pro `#/hotels/:id/rooms` (3 části) musí být před `#/hotels/:id` (2 části), jinak by byl detail hotelu matchován dříve.
 
 **Tři kroky:**
 1. `urlToRoute(url)` — parsuje hash z URL na route objekt
@@ -220,6 +247,35 @@ export function enterHotelList({ store }) {
     ...state,
     ui: { ...state.ui, mode: 'HOTEL_LIST', status: 'READY' },
   }));
+}
+```
+
+### `enterRoomList.js` — vstup na seznam pokojů
+
+Načte pokoje pro daný hotel a přepne view na `ROOM_LIST`. Přijímá volitelné `filters` v payload — pokud jsou zadány, rovnou se promítnou do API volání (využívá se pro navigaci přímo z filtru na detailu hotelu).
+
+```javascript
+export async function enterRoomList({ store, api, payload }) {
+  const { hotelId, filters } = payload;
+  const activeFilters = filters ?? { checkIn: '', checkOut: '', capacity: 0, ... };
+
+  // 1. Nastaví mode ROOM_LIST + status LOADING + roomFilters
+  // 2. Zavolá GET /api/rooms?hotelId=...&checkIn=...&...
+  // 3. Při SUCCESS: uloží rooms + extrahuje availableRoomTypes + status READY
+  // 4. Při REJECT: status ERROR
+}
+```
+
+### `roomSearch.js` — vyhledání pokojů podle filtrů (bez změny stránky)
+
+Spouští se při odeslání filtrovacího formuláře na stránce `ROOM_LIST`. Na rozdíl od `enterRoomList` nemění `mode` ani `status` — jen nastaví `roomsLoading: true`, zavolá API a aktualizuje `rooms`.
+
+```javascript
+export async function roomSearch({ store, api, payload }) {
+  const { filters, hotelId } = payload;
+  // 1. roomsLoading: true, roomFilters: filters
+  // 2. GET /api/rooms?hotelId=...&<filtry>
+  // 3. rooms: result.rooms, roomsLoading: false
 }
 ```
 
@@ -317,8 +373,30 @@ export function HotelListView({ viewState, handlers }) {
 ### Components (`views/components/`)
 
 ```javascript
-// LoadingView.js — zobrazí "Načítání…"
-// ErrorView.js  — zobrazí chybovou hlášku s tlačítkem "Pokračovat"
+// LoadingView.js       — zobrazí "Načítání…"
+// ErrorView.js         — zobrazí chybovou hlášku s tlačítkem "Pokračovat"
+// Layout.js            — hlavní layout aplikace (header + sidebar + main)
+// RoomFilterSidebar.js — filtrační formulář v sidebaru
+```
+
+#### `Layout.js` — `sidebarContent` prop
+
+Komponenta Layout přijímá volitelný prop `sidebarContent`. Pokud je předán, sidebar zobrazí tento obsah místo výchozí navigace. Využívá se na stránkách `HOTEL_DETAIL` a `ROOM_LIST` pro zobrazení filtračního panelu.
+
+```javascript
+Layout({ hotelName, auth, handlers, contentElement, fullWidth, sidebarContent })
+// sidebarContent = null  → zobrazí navigaci (výchozí)
+// sidebarContent = <element>  → zobrazí předaný element (např. RoomFilterSidebar)
+```
+
+#### `RoomFilterSidebar.js`
+
+Filtrační formulář v sidebaru. Zobrazuje se na stránkách `HOTEL_DETAIL` i `ROOM_LIST`. Obsahuje: datum příjezdu/odjezdu, počet hostů, typ pokoje (dynamicky z `availableRoomTypes`), max. cena, vybavení (checkboxy). Tlačítko "Zpět na hotel" se zobrazuje **pouze** na `ROOM_LIST` (podmínka `viewState.type === 'ROOM_LIST'`).
+
+```javascript
+RoomFilterSidebar({ viewState, handlers })
+// viewState.type = 'ROOM_LIST'   → zobrazí back button, volá handlers.onRoomSearch → ROOM_SEARCH
+// viewState.type = 'HOTEL_DETAIL' → bez back buttonu, volá handlers.onRoomSearch → ENTER_ROOM_LIST
 ```
 
 ### Dobré praktiky
@@ -354,6 +432,7 @@ Každá metoda vrací objekt `{ status: 'SUCCESS', ...data }` nebo `{ status: 'R
 | Co potřebuji | Kam to dám |
 |---|---|
 | Přidat novou stránku | `router/` (nový pattern) + `actions/` (enter akce) + `views/pages/` (nový view) + `selectors/` (nový selector) + case do `dispatcher`, `render`, `createHandlers` |
+| Přidat sidebar pro stránku | vytvořit komponentu v `views/components/` + předat jako `sidebarContent` v `render.js` |
 | Přidat tlačítko/interakci | `handlers/` (nový handler) + `actions/` (nová akce) + case do `dispatcher` |
 | Volat API | `actions/` — zavolat `api.get/post/put/del()` |
 | Změnit tvar dat pro view | `selectors/` |

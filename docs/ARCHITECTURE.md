@@ -76,7 +76,7 @@ js/
 | `views/components/` | **Sdílené komponenty** — znovupoužitelné UI prvky (navbar, karty pokojů, modály, formulářové prvky). Čisté funkce vytvářející DOM přes `document.createElement`. |
 | `infrastructure/` | **API klient** — `fetch()` wrapper pro komunikaci s backendem. Jediné místo, kde se volá server. Obsahuje `apiClient.js` s metodami `get()`, `post()`, `put()`, `delete()` a interceptory pro JWT tokeny. |
 | `rules/` | **Business pravidla** — pojmenované invarianty vynucované na klientu. Např. `RULE_RESERVATION_MAX_DURATION`, `RULE_CHECKIN_BEFORE_CHECKOUT`. Pravidla jsou oddělena od UI a duplikují se s backendem (backend je autoritativní). |
-| `router/` | **SPA router** — hash-based navigace (`#/rooms`, `#/login`, `#/my-reservations`). Při změně hash routy renderuje odpovídající stránku. |
+| `router/` | **SPA router** — hash-based navigace. Implementované routy: `#/hotels`, `#/hotels/:id`, `#/hotels/:id/rooms`, `#/login`, `#/register`. |
 
 Další soubory v kořenu:
 
@@ -470,13 +470,27 @@ Pojmenovaná pravidla vynucovaná na backendu (autoritativní) i na frontendu (U
 
 | Metoda | Endpoint | Popis | Role |
 |---|---|---|---|
-| GET | `/api/rooms` | Seznam dostupných pokojů (filtr, stránkování) | Veřejný |
+| GET | `/api/rooms` | Filtrovaný seznam pokojů pro hotel | Veřejný |
 | GET | `/api/rooms/{id}` | Detail pokoje (vč. amenities a obrázků) | Veřejný |
-| GET | `/api/rooms/available` | Dostupné pokoje v termínu (`?checkIn=…&checkOut=…&hotelId=…`) | Veřejný |
-| GET | `/api/rooms/{id}/calendar` | Obsazenost pokoje v období (`?from=…&to=…`) — pro kalendářový pohled | Veřejný |
 | POST | `/api/rooms` | Vytvoření pokoje | Admin |
 | PUT | `/api/rooms/{id}` | Úprava pokoje | Admin |
 | PATCH | `/api/rooms/{id}/active` | Aktivace / deaktivace pokoje | Admin |
+
+**GET `/api/rooms` — query parametry:**
+
+| Parametr | Typ | Povinný | Popis |
+|---|---|---|---|
+| `hotelId` | Long | **ANO** | ID hotelu |
+| `checkIn` | LocalDate (ISO) | ne | Datum příjezdu — filtruje pouze volné pokoje |
+| `checkOut` | LocalDate (ISO) | ne | Datum odjezdu — filtruje pouze volné pokoje |
+| `capacity` | Integer | ne | Minimální kapacita (počet hostů) |
+| `maxPrice` | BigDecimal | ne | Maximální cena za noc (Kč) |
+| `roomTypeId` | Long | ne | ID typu pokoje |
+| `amenities` | String[] (multi) | ne | Kódy vybavení — pokoj musí mít **všechna** uvedená (např. `?amenities=WIFI&amenities=AC`) |
+
+Odpověď: `{ "rooms": [ RoomResponse... ] }`
+
+`RoomResponse` obsahuje: `id`, `roomNumber`, `capacity`, `pricePerNight`, `description`, `roomTypeId`, `roomTypeName`, `amenities: [ { id, code, name } ]`
 
 ### Rezervace
 
