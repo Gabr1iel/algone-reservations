@@ -4,6 +4,7 @@ export function createInitialState() {
     selectedHotel: null,
     rooms: [],
     availableRoomTypes: [],
+    userProfile: null,
 
     auth: {
       role: 'ANONYMOUS',
