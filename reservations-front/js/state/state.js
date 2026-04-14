@@ -5,6 +5,11 @@ export function createInitialState() {
     rooms: [],
     availableRoomTypes: [],
     userProfile: null,
+    myReservations: [],
+    reservationDraft: null,
+    selectedReservationPayments: [],
+    paymentDraft: null,
+    selectedReservationId: null,
 
     auth: {
       role: 'ANONYMOUS',
