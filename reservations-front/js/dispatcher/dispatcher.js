@@ -8,6 +8,13 @@ import { logout } from '../actions/logout.js';
 import { enterHotelDetail } from '../actions/enterHotelDetail.js';
 import { enterRoomList } from '../actions/enterRoomList.js';
 import { roomSearch } from '../actions/roomSearch.js';
+import { enterUserDetail } from '../actions/enterUserDetail.js';
+import { enterMyReservations } from '../actions/enterMyReservations.js';
+import { enterReservationCreate } from '../actions/enterReservationCreate.js';
+import { submitReservation } from '../actions/submitReservation.js';
+import { cancelReservation } from '../actions/cancelReservation.js';
+import { enterReservationPayments } from '../actions/enterReservationPayments.js';
+import { createPayment } from '../actions/createPayment.js';
 
 export function createDispatcher(store, api) {
   return async function dispatch(action) {
@@ -45,6 +52,27 @@ export function createDispatcher(store, api) {
 
       case 'ROOM_SEARCH':
         return roomSearch({ store, api, payload });
+
+      case 'ENTER_USER_DETAIL':
+        return enterUserDetail({ store, api });
+
+      case 'ENTER_MY_RESERVATIONS':
+        return enterMyReservations({ store, api });
+
+      case 'ENTER_RESERVATION_CREATE':
+        return enterReservationCreate({ store, payload });
+
+      case 'SUBMIT_RESERVATION':
+        return submitReservation({ store, api, dispatch });
+
+      case 'CANCEL_RESERVATION':
+        return cancelReservation({ store, api, dispatch, payload });
+
+      case 'ENTER_RESERVATION_PAYMENTS':
+        return enterReservationPayments({ store, api, payload });
+
+      case 'CREATE_PAYMENT':
+        return createPayment({ store, api, dispatch, payload });
 
       case 'LOGOUT':
         return logout({ store, dispatch });
