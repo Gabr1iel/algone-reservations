@@ -19,6 +19,13 @@ export function selectHotelListView(state) {
   };
 }
 
+export function selectUserDetailView(state) {
+  return {
+    type: 'USER_DETAIL',
+    user: state.userProfile ?? {},
+  };
+}
+
 export function selectHotelDetailView(state) {
   const hotel = state.selectedHotel ?? {};
   return {
@@ -65,13 +72,35 @@ export function selectRegisterView(state) {
     type: 'REGISTER',
     registerError: state.ui.registerError ?? null,
     isSubmitting: state.ui.isSubmitting ?? false,
-  }
+  };
 }
 
 export function selectLayoutData(state) {
   return {
     hotelName: selectHotelName(state),
     auth: selectAuth(state),
+  };
+}
+
+export function selectMyReservationsView(state) {
+  return {
+    type: 'MY_RESERVATIONS',
+    reservations: state.myReservations ?? [],
+  };
+}
+
+export function selectReservationCreateView(state) {
+  return {
+    type: 'RESERVATION_CREATE',
+    reservation: state.reservationDraft,
+  };
+}
+
+export function selectReservationPaymentsView(state) {
+  return {
+    type: 'RESERVATION_PAYMENTS',
+    reservationId: state.selectedReservationId,
+    payments: state.selectedReservationPayments ?? [],
   };
 }
 
@@ -101,6 +130,14 @@ export function selectViewState(state) {
       return selectLoginView(state);
     case 'REGISTER':
       return selectRegisterView(state);
+    case 'USER_DETAIL':
+      return selectUserDetailView(state);
+    case 'MY_RESERVATIONS':
+      return selectMyReservationsView(state);
+    case 'RESERVATION_CREATE':
+      return selectReservationCreateView(state);
+    case 'RESERVATION_PAYMENTS':
+      return selectReservationPaymentsView(state);
     default:
       return { type: 'ERROR', message: `Unknown ui mode: ${mode}` };
   }
