@@ -10,6 +10,10 @@ import { RoomListView } from './pages/RoomListView.js';
 import { LoginView } from './pages/LoginView.js';
 import { RegisterView } from './pages/RegisterView.js';
 import { RoomFilterSidebar } from './components/RoomFilterSidebar.js';
+import { UserDetailView } from './pages/UserDetailView.js';
+import { MyReservationsView } from './pages/MyReservationsView.js';
+import { ReservationCreateView } from './pages/ReservationCreateView.js';
+import { ReservationPaymentsView } from './pages/ReservationPaymentsView.js';
 
 export function render(root, state, dispatch) {
   root.replaceChildren();
@@ -61,6 +65,22 @@ export function render(root, state, dispatch) {
 
     case 'REGISTER':
       contentElement = RegisterView({ viewState, handlers });
+      break;
+
+    case 'USER_DETAIL':
+      contentElement = UserDetailView({ viewState, handlers });
+      break;
+
+    case 'MY_RESERVATIONS':
+      contentElement = MyReservationsView({ viewState, handlers });
+      break;
+
+    case 'RESERVATION_CREATE':
+      contentElement = ReservationCreateView({ viewState, handlers });
+      break;
+
+    case 'RESERVATION_PAYMENTS':
+      contentElement = ReservationPaymentsView({ viewState, handlers });
       break;
 
     default:
