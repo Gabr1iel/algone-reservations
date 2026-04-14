@@ -1,4 +1,4 @@
-export async function enterUserDetail({ store, apiClient }) {
+export async function enterUserDetail({ store, api }) {
     store.setState((state) => ({
         ...state,
         ui: {
@@ -9,12 +9,13 @@ export async function enterUserDetail({ store, apiClient }) {
         },
     }));
 
-    try {
-        const profile = await apiClient.get('/api/users/me');
+    const token = store.getState().auth.token;
+    const result = await api.get('/users/me', token);
 
+    if (result.status === 'SUCCESS') {
         store.setState((state) => ({
             ...state,
-            userProfile: profile,
+            userProfile: result.user ?? null,
             ui: {
                 ...state.ui,
                 mode: 'USER_DETAIL',
@@ -22,15 +23,16 @@ export async function enterUserDetail({ store, apiClient }) {
                 errorMessage: null,
             },
         }));
-    } catch (error) {
-        store.setState((state) => ({
-            ...state,
-            ui: {
-                ...state.ui,
-                mode: 'ERROR',
-                status: 'READY',
-                errorMessage: error?.message || 'Nepodařilo se načíst profil uživatele.',
-            },
-        }));
+        return;
     }
+
+    store.setState((state) => ({
+        ...state,
+        ui: {
+            ...state.ui,
+            mode: 'ERROR',
+            status: 'ERROR',
+            errorMessage: result.reason || 'Nepodařilo se načíst profil uživatele.',
+        },
+    }));
 }
