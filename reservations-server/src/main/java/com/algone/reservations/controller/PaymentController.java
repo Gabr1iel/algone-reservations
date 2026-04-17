@@ -30,14 +30,11 @@ public class PaymentController {
                 .map(PaymentResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(Map.of(
-                "status", "SUCCESS",
-                "payments", payments
-        ));
+        return ResponseEntity.ok(Map.of("payments", payments));
     }
 
     @PostMapping("/reservations/{id}/payments")
-    public ResponseEntity<Map<String, Object>> createPayment(
+    public ResponseEntity<PaymentResponse> createPayment(
             Authentication authentication,
             @PathVariable Long id,
             @Valid @RequestBody CreatePaymentRequest request
@@ -46,9 +43,6 @@ public class PaymentController {
                 paymentService.createPayment(authentication, id, request)
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "status", "SUCCESS",
-                "payment", payment
-        ));
+        return ResponseEntity.status(HttpStatus.CREATED).body(payment);
     }
 }

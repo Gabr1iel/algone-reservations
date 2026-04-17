@@ -11,6 +11,9 @@ import { LoginView } from './pages/LoginView.js';
 import { RegisterView } from './pages/RegisterView.js';
 import { RoomFilterSidebar } from './components/RoomFilterSidebar.js';
 import { UserDetailView } from './pages/UserDetailView.js';
+import { UserEditProfileView } from './pages/UserEditProfileView.js';
+import { UserEditEmailView } from './pages/UserEditEmailView.js';
+import { UserEditPasswordView } from './pages/UserEditPasswordView.js';
 import { MyReservationsView } from './pages/MyReservationsView.js';
 import { ReservationCreateView } from './pages/ReservationCreateView.js';
 import { ReservationPaymentsView } from './pages/ReservationPaymentsView.js';
@@ -69,6 +72,18 @@ export function render(root, state, dispatch) {
 
     case 'USER_DETAIL':
       contentElement = UserDetailView({ viewState, handlers });
+      break;
+
+    case 'USER_EDIT_PROFILE':
+      contentElement = UserEditProfileView({ viewState, handlers });
+      break;
+
+    case 'USER_EDIT_EMAIL':
+      contentElement = UserEditEmailView({ viewState, handlers });
+      break;
+
+    case 'USER_EDIT_PASSWORD':
+      contentElement = UserEditPasswordView({ viewState, handlers });
       break;
 
     case 'MY_RESERVATIONS':

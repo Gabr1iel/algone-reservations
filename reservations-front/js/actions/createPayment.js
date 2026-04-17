@@ -53,14 +53,11 @@ export async function createPayment({ store, api, dispatch, payload }) {
             ...current,
             ui: {
                 ...current.ui,
-                notification: 'Platba byla úspěšně vytvořena.',
+                notification: 'Platba byla úspěšně provedena.',
             },
         }));
 
-        return dispatch({
-            type: 'ENTER_RESERVATION_PAYMENTS',
-            payload: { reservationId },
-        });
+        return dispatch({ type: 'ENTER_MY_RESERVATIONS' });
     }
 
     store.setState((current) => ({

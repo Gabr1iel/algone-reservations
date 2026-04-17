@@ -5,6 +5,7 @@ import com.algone.reservations.entity.Reservation;
 import com.algone.reservations.entity.ReservationStatus;
 import com.algone.reservations.entity.Room;
 import com.algone.reservations.entity.User;
+import com.algone.reservations.exception.BusinessException;
 import com.algone.reservations.repository.ReservationRepository;
 import com.algone.reservations.repository.RoomRepository;
 import com.algone.reservations.repository.UserRepository;
@@ -28,7 +29,7 @@ public class ReservationService {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                .orElseThrow(() -> new BusinessException("Uživatel nebyl nalezen: " + email));
 
         return reservationRepository.findByUser_IdOrderByCreatedAtDesc(user.getId());
     }
@@ -37,18 +38,18 @@ public class ReservationService {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                .orElseThrow(() -> new BusinessException("Uživatel nebyl nalezen: " + email));
 
         if (request.getCheckIn() == null || request.getCheckOut() == null) {
-            throw new RuntimeException("Check-in and check-out are required");
+            throw new BusinessException("Datum příjezdu i odjezdu je povinný.");
         }
 
         if (!request.getCheckIn().isBefore(request.getCheckOut())) {
-            throw new RuntimeException("Check-in must be before check-out");
+            throw new BusinessException("Datum příjezdu musí být před datem odjezdu.");
         }
 
         Room room = roomRepository.findRoomById(request.getRoomId())
-                .orElseThrow(() -> new RuntimeException("Active room not found: " + request.getRoomId()));
+                .orElseThrow(() -> new BusinessException("Pokoj nebyl nalezen: " + request.getRoomId()));
 
         boolean overlaps = reservationRepository.existsOverlappingReservation(
                 room.getId(),
@@ -58,7 +59,7 @@ public class ReservationService {
         );
 
         if (overlaps) {
-            throw new RuntimeException("Room is already reserved for the selected dates");
+            throw new BusinessException("Pokoj je v tomto termínu už rezervovaný.");
         }
 
         long nights = ChronoUnit.DAYS.between(request.getCheckIn(), request.getCheckOut());
@@ -80,18 +81,18 @@ public class ReservationService {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                .orElseThrow(() -> new BusinessException("Uživatel nebyl nalezen: " + email));
 
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found: " + reservationId));
+                .orElseThrow(() -> new BusinessException("Rezervace nebyla nalezena: " + reservationId));
 
         if (!reservation.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You can cancel only your own reservations");
+            throw new BusinessException("Můžete rušit jen vlastní rezervace.");
         }
 
         if (reservation.getStatus() != ReservationStatus.PENDING
                 && reservation.getStatus() != ReservationStatus.CONFIRMED) {
-            throw new RuntimeException("Only pending or confirmed reservations can be cancelled");
+            throw new BusinessException("Zrušit lze jen čekající nebo potvrzené rezervace.");
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);

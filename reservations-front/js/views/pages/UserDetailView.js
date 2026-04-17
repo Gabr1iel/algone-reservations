@@ -37,7 +37,6 @@ export function UserDetailView({ viewState, handlers }) {
         { label: 'Jméno', value: user.firstName || '—' },
         { label: 'Příjmení', value: user.lastName || '—' },
         { label: 'Email', value: user.email || '—' },
-        { label: 'Role', value: user.role || '—' },
         { label: 'Telefon', value: user.phone || '—' },
     ];
 
@@ -60,5 +59,29 @@ export function UserDetailView({ viewState, handlers }) {
 
     container.appendChild(card);
 
+    const actions = document.createElement('div');
+    actions.className = 'mt-6 grid md:grid-cols-3 gap-3';
+
+    const editProfileBtn = createActionButton('Upravit profil', 'bg-blue-600 hover:bg-blue-700');
+    editProfileBtn.addEventListener('click', handlers.onEditProfile);
+
+    const editEmailBtn = createActionButton('Změnit email', 'bg-slate-700 hover:bg-slate-800');
+    editEmailBtn.addEventListener('click', handlers.onEditEmail);
+
+    const editPasswordBtn = createActionButton('Změnit heslo', 'bg-slate-700 hover:bg-slate-800');
+    editPasswordBtn.addEventListener('click', handlers.onEditPassword);
+
+    actions.appendChild(editProfileBtn);
+    actions.appendChild(editEmailBtn);
+    actions.appendChild(editPasswordBtn);
+    container.appendChild(actions);
+
     return container;
+}
+
+function createActionButton(text, colorClasses) {
+    const btn = document.createElement('button');
+    btn.className = `${colorClasses} text-white font-semibold py-3 rounded-lg transition-colors`;
+    btn.textContent = text;
+    return btn;
 }

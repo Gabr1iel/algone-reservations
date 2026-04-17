@@ -107,15 +107,16 @@ export function MyReservationsView({ viewState, handlers }) {
         const actions = document.createElement('div');
         actions.className = 'mt-6 flex justify-end gap-3';
 
-        const paymentsButton = document.createElement('button');
-        paymentsButton.className =
-            'bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors';
-        paymentsButton.textContent = 'Platby';
-        paymentsButton.addEventListener('click', () =>
-            handlers.onOpenPayments(reservation.id)
-        );
-
-        actions.appendChild(paymentsButton);
+        if (reservation.status === 'PENDING') {
+            const payButton = document.createElement('button');
+            payButton.className =
+                'bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors';
+            payButton.textContent = 'Zaplatit rezervaci';
+            payButton.addEventListener('click', () =>
+                handlers.onOpenPayments(reservation.id)
+            );
+            actions.appendChild(payButton);
+        }
 
         if (reservation.status === 'PENDING' || reservation.status === 'CONFIRMED') {
             const cancelButton = document.createElement('button');

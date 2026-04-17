@@ -37,6 +37,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Nesprávný email nebo heslo.");
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
@@ -44,6 +49,15 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         return buildResponse(HttpStatus.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+        ex.printStackTrace();
+        String message = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : "Vnitřní chyba serveru.";
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {

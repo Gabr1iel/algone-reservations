@@ -1,4 +1,19 @@
 export async function enterUserDetail({ store, api }) {
+    const token = store.getState().auth.token;
+
+    if (!token) {
+        store.setState((state) => ({
+            ...state,
+            ui: {
+                ...state.ui,
+                mode: 'ERROR',
+                status: 'ERROR',
+                errorMessage: 'Pro zobrazení profilu se musíte nejdřív přihlásit.',
+            },
+        }));
+        return;
+    }
+
     store.setState((state) => ({
         ...state,
         ui: {
@@ -9,13 +24,13 @@ export async function enterUserDetail({ store, api }) {
         },
     }));
 
-    const token = store.getState().auth.token;
     const result = await api.get('/users/me', token);
 
     if (result.status === 'SUCCESS') {
+        const { status, ...user } = result;
         store.setState((state) => ({
             ...state,
-            userProfile: result.user ?? null,
+            userProfile: user,
             ui: {
                 ...state.ui,
                 mode: 'USER_DETAIL',

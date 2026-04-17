@@ -12,20 +12,22 @@ export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = 
   headerInner.className = 'flex items-center justify-between px-6 py-4';
 
   const logo = document.createElement('h1');
-  logo.className = 'text-xl font-bold tracking-wide';
-  if (fullWidth) {
-    logo.className += ' text-white drop-shadow-lg cursor-pointer';
-    logo.addEventListener('click', () => handlers.onNavigate('HOTEL_LIST'));
-  }
+  logo.className = fullWidth
+    ? 'text-xl font-bold tracking-wide text-white drop-shadow-lg cursor-pointer'
+    : 'text-xl font-bold tracking-wide cursor-pointer hover:text-blue-100 transition-colors';
+  logo.addEventListener('click', () => handlers.onNavigate('HOTEL_LIST'));
   logo.textContent = hotelName || 'Algone Reservations';
 
   const authSection = document.createElement('div');
   authSection.className = 'flex items-center gap-4';
 
   if (auth.role !== 'ANONYMOUS') {
-    const userName = document.createElement('span');
-    userName.className = fullWidth ? 'text-white/80 text-sm drop-shadow' : 'text-blue-100 text-sm';
+    const userName = document.createElement('button');
+    userName.className = fullWidth
+      ? 'text-white/80 hover:text-white text-sm drop-shadow underline-offset-4 hover:underline transition-colors'
+      : 'text-blue-100 hover:text-white text-sm underline-offset-4 hover:underline transition-colors';
     userName.textContent = `${auth.firstName} ${auth.lastName}`;
+    userName.addEventListener('click', () => handlers.onNavigate('USER_DETAIL'));
     authSection.appendChild(userName);
 
     const logoutBtn = document.createElement('button');
@@ -66,9 +68,7 @@ export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = 
     const nav = document.createElement('nav');
     nav.className = 'flex flex-col py-4';
 
-    const navItems = [
-      { label: 'Hotely', action: 'HOTEL_LIST', icon: '🏨' },
-    ];
+    const navItems = [];
 
     if (auth.role !== 'ANONYMOUS') {
       navItems.push({ label: 'Můj profil', action: 'USER_DETAIL', icon: '👤' });

@@ -9,6 +9,12 @@ import { enterHotelDetail } from '../actions/enterHotelDetail.js';
 import { enterRoomList } from '../actions/enterRoomList.js';
 import { roomSearch } from '../actions/roomSearch.js';
 import { enterUserDetail } from '../actions/enterUserDetail.js';
+import { enterUserEditProfile } from '../actions/enterUserEditProfile.js';
+import { enterUserEditEmail } from '../actions/enterUserEditEmail.js';
+import { enterUserEditPassword } from '../actions/enterUserEditPassword.js';
+import { updateProfile } from '../actions/updateProfile.js';
+import { updateEmail } from '../actions/updateEmail.js';
+import { updatePassword } from '../actions/updatePassword.js';
 import { enterMyReservations } from '../actions/enterMyReservations.js';
 import { enterReservationCreate } from '../actions/enterReservationCreate.js';
 import { submitReservation } from '../actions/submitReservation.js';
@@ -56,11 +62,29 @@ export function createDispatcher(store, api) {
       case 'ENTER_USER_DETAIL':
         return enterUserDetail({ store, api });
 
+      case 'ENTER_USER_EDIT_PROFILE':
+        return enterUserEditProfile({ store });
+
+      case 'ENTER_USER_EDIT_EMAIL':
+        return enterUserEditEmail({ store });
+
+      case 'ENTER_USER_EDIT_PASSWORD':
+        return enterUserEditPassword({ store });
+
+      case 'UPDATE_PROFILE':
+        return updateProfile({ store, api, dispatch, payload });
+
+      case 'UPDATE_EMAIL':
+        return updateEmail({ store, api, dispatch, payload });
+
+      case 'UPDATE_PASSWORD':
+        return updatePassword({ store, api, dispatch, payload });
+
       case 'ENTER_MY_RESERVATIONS':
         return enterMyReservations({ store, api });
 
       case 'ENTER_RESERVATION_CREATE':
-        return enterReservationCreate({ store, payload });
+        return enterReservationCreate({ store, dispatch, payload });
 
       case 'SUBMIT_RESERVATION':
         return submitReservation({ store, api, dispatch });

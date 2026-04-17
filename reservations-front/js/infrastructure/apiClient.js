@@ -15,11 +15,13 @@ async function request(method, path, body = null, token = null) {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Chyba serveru' }));
-    return { status: 'REJECTED', reason: error.message ?? `HTTP ${response.status}` };
+    const reason = error.message ?? `HTTP ${response.status}`;
+    console.error(`[apiClient] ${method} ${path} → ${response.status}`, error);
+    return { status: 'REJECTED', reason };
   }
 
   const data = await response.json().catch(() => null);
-  return { status: 'SUCCESS', ...data };
+  return { ...data, status: 'SUCCESS' };
 }
 
 export function get(path, token) {

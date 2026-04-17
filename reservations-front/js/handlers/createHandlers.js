@@ -18,6 +18,15 @@ export function createHandlers(dispatch, viewState) {
     case 'USER_DETAIL':
       return userDetailHandlers(dispatch, viewState);
 
+    case 'USER_EDIT_PROFILE':
+      return userEditProfileHandlers(dispatch, viewState);
+
+    case 'USER_EDIT_EMAIL':
+      return userEditEmailHandlers(dispatch, viewState);
+
+    case 'USER_EDIT_PASSWORD':
+      return userEditPasswordHandlers(dispatch, viewState);
+
     case 'MY_RESERVATIONS':
       return myReservationsHandlers(dispatch, viewState);
 
@@ -106,6 +115,30 @@ function errorHandlers(dispatch) {
 function userDetailHandlers(dispatch, viewState) {
   return {
     onGoBack: () => dispatch({ type: 'ENTER_HOTEL_LIST' }),
+    onEditProfile: () => dispatch({ type: 'ENTER_USER_EDIT_PROFILE' }),
+    onEditEmail: () => dispatch({ type: 'ENTER_USER_EDIT_EMAIL' }),
+    onEditPassword: () => dispatch({ type: 'ENTER_USER_EDIT_PASSWORD' }),
+  };
+}
+
+function userEditProfileHandlers(dispatch, viewState) {
+  return {
+    onCancel: () => dispatch({ type: 'ENTER_USER_DETAIL' }),
+    onSaveProfile: (payload) => dispatch({ type: 'UPDATE_PROFILE', payload }),
+  };
+}
+
+function userEditEmailHandlers(dispatch, viewState) {
+  return {
+    onCancel: () => dispatch({ type: 'ENTER_USER_DETAIL' }),
+    onSaveEmail: (payload) => dispatch({ type: 'UPDATE_EMAIL', payload }),
+  };
+}
+
+function userEditPasswordHandlers(dispatch, viewState) {
+  return {
+    onCancel: () => dispatch({ type: 'ENTER_USER_DETAIL' }),
+    onSavePassword: (payload) => dispatch({ type: 'UPDATE_PASSWORD', payload }),
   };
 }
 

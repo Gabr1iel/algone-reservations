@@ -26,6 +26,32 @@ export function selectUserDetailView(state) {
   };
 }
 
+export function selectUserEditProfileView(state) {
+  return {
+    type: 'USER_EDIT_PROFILE',
+    user: state.userProfile ?? {},
+    isSubmitting: state.ui.isSubmitting ?? false,
+    userEditError: state.ui.userEditError ?? null,
+  };
+}
+
+export function selectUserEditEmailView(state) {
+  return {
+    type: 'USER_EDIT_EMAIL',
+    currentEmail: state.userProfile?.email ?? state.auth?.email ?? null,
+    isSubmitting: state.ui.isSubmitting ?? false,
+    userEditError: state.ui.userEditError ?? null,
+  };
+}
+
+export function selectUserEditPasswordView(state) {
+  return {
+    type: 'USER_EDIT_PASSWORD',
+    isSubmitting: state.ui.isSubmitting ?? false,
+    userEditError: state.ui.userEditError ?? null,
+  };
+}
+
 export function selectHotelDetailView(state) {
   const hotel = state.selectedHotel ?? {};
   return {
@@ -97,9 +123,12 @@ export function selectReservationCreateView(state) {
 }
 
 export function selectReservationPaymentsView(state) {
+  const reservationId = state.selectedReservationId;
+  const reservation = (state.myReservations ?? []).find((r) => r.id === reservationId) ?? null;
   return {
     type: 'RESERVATION_PAYMENTS',
-    reservationId: state.selectedReservationId,
+    reservationId,
+    reservation,
     payments: state.selectedReservationPayments ?? [],
   };
 }
@@ -132,6 +161,12 @@ export function selectViewState(state) {
       return selectRegisterView(state);
     case 'USER_DETAIL':
       return selectUserDetailView(state);
+    case 'USER_EDIT_PROFILE':
+      return selectUserEditProfileView(state);
+    case 'USER_EDIT_EMAIL':
+      return selectUserEditEmailView(state);
+    case 'USER_EDIT_PASSWORD':
+      return selectUserEditPasswordView(state);
     case 'MY_RESERVATIONS':
       return selectMyReservationsView(state);
     case 'RESERVATION_CREATE':

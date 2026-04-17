@@ -28,14 +28,11 @@ public class ReservationController {
                         .map(ReservationResponse::fromEntity)
                         .toList();
 
-        return ResponseEntity.ok(Map.of(
-                "status", "SUCCESS",
-                "reservations", reservations
-        ));
+        return ResponseEntity.ok(Map.of("reservations", reservations));
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createReservation(
+    public ResponseEntity<ReservationResponse> createReservation(
             Authentication authentication,
             @Valid @RequestBody CreateReservationRequest request
     ) {
@@ -43,14 +40,11 @@ public class ReservationController {
                 reservationService.createReservation(authentication, request)
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "status", "SUCCESS",
-                "reservation", reservation
-        ));
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<Map<String, Object>> cancelReservation(
+    public ResponseEntity<ReservationResponse> cancelReservation(
             Authentication authentication,
             @PathVariable Long id
     ) {
@@ -58,9 +52,6 @@ public class ReservationController {
                 reservationService.cancelReservation(authentication, id)
         );
 
-        return ResponseEntity.ok(Map.of(
-                "status", "SUCCESS",
-                "reservation", reservation
-        ));
+        return ResponseEntity.ok(reservation);
     }
 }

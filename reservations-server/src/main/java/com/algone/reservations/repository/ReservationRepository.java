@@ -25,7 +25,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("cancelled") ReservationStatus cancelled
     );
 
-    List<Reservation> findByUser_IdOrderByCreatedAtDesc(Long userId);
+    @Query("""
+            SELECT r FROM Reservation r
+            JOIN FETCH r.room rm
+            JOIN FETCH rm.hotel
+            WHERE r.user.id = :userId
+            ORDER BY r.createdAt DESC
+            """)
+    List<Reservation> findByUser_IdOrderByCreatedAtDesc(@Param("userId") Long userId);
 
     @Query("""
             SELECT COUNT(res) > 0 FROM Reservation res
