@@ -12,6 +12,8 @@ import com.algone.reservations.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
@@ -25,6 +27,7 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
+    @Transactional(readOnly = true)
     public List<Reservation> getMyReservations(Authentication authentication) {
         String email = authentication.getName();
 
@@ -34,6 +37,7 @@ public class ReservationService {
         return reservationRepository.findByUser_IdOrderByCreatedAtDesc(user.getId());
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public Reservation createReservation(Authentication authentication, CreateReservationRequest request) {
         String email = authentication.getName();
 
@@ -77,6 +81,7 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Reservation cancelReservation(Authentication authentication, Long reservationId) {
         String email = authentication.getName();
 

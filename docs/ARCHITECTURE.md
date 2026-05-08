@@ -541,11 +541,11 @@ Odpověď: `{ "rooms": [ RoomResponse... ] }`
 
 ## Databázové objekty (povinné dle zadání)
 
-| Objekt | Návrh |
-|---|---|
-| **VIEW** | `v_active_reservations` — přehled aktuálních rezervací s join na uživatele, pokoje a hotely. |
-| **FUNCTION** | `fn_calculate_total_price(room_id, check_in, check_out)` — výpočet celkové ceny z počtu nocí a ceny pokoje. |
-| **PROCEDURE** | `sp_cancel_expired_reservations()` — zrušení PENDING rezervací starších než X dní. |
-| **TRIGGER** | `trg_reservation_updated_at` — automatická aktualizace `updated_at` při UPDATE záznamu. |
-| **Transakce** | Vytvoření rezervace — kontrola dostupnosti + insert v rámci jedné transakce s rollbackem při kolizi. |
-| **DB uživatel** | `app_user` s omezenými právy (SELECT, INSERT, UPDATE, DELETE na aplikační tabulky — bez DROP, ALTER, GRANT). |
+| Objekt | Implementace | Umístění |
+|---|---|---|
+| **VIEW** | `v_active_reservations` — přehled aktivních rezervací (status NOT IN CANCELLED, COMPLETED) s joinem na user, room, room_type a hotel. | `db/migration/V13__create_view_active_reservations.sql` |
+| **FUNCTION** | `fn_calculate_total_price(room_id, check_in, check_out)` — výpočet celkové ceny z počtu nocí a ceny pokoje. | `db/migration/V14__create_function_calculate_total_price.sql` |
+| **PROCEDURE** | `sp_cancel_expired_reservations(p_days)` — hromadné zrušení PENDING rezervací starších než `p_days` dní. | `db/migration/V15__create_procedure_cancel_expired_reservations.sql` |
+| **TRIGGER** | `trg_payment_set_paid_at` — BEFORE UPDATE na `payments`: při přechodu status → PAID automaticky vyplní `paid_at = NOW()`. | `db/migration/V16__create_trigger_payment_set_paid_at.sql` |
+| **Transakce** | `ReservationService.createReservation` — `@Transactional(isolation = SERIALIZABLE, rollbackFor = Exception.class)` → atomicita kontroly překryvu + insertu, prevence double-bookingu při souběhu. | `service/ReservationService.java` |
+| **DB uživatel** | `app_user` s právy SELECT/INSERT/UPDATE/DELETE/EXECUTE na schéma `algone_reservations` (bez CREATE/DROP/ALTER/GRANT). Vytváří se ručně mimo Flyway, který sám potřebuje DDL práva. | `db/setup/create_app_user.sql` |
