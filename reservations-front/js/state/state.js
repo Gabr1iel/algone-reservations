@@ -11,6 +11,13 @@ export function createInitialState() {
     paymentDraft: null,
     selectedReservationId: null,
 
+    admin: {
+      reservations: [],
+      users: [],
+      rooms: [],
+      reservationStatusFilter: 'ALL',
+    },
+
     auth: {
       role: 'ANONYMOUS',
       userId: null,
@@ -32,6 +39,7 @@ export function createInitialState() {
       returnAction: null,
       roomsLoading: false,
       roomsError: null,
+      adminError: null,
       roomFilters: {
         checkIn: '',
         checkOut: '',

@@ -21,6 +21,9 @@ import { submitReservation } from '../actions/submitReservation.js';
 import { cancelReservation } from '../actions/cancelReservation.js';
 import { enterReservationPayments } from '../actions/enterReservationPayments.js';
 import { createPayment } from '../actions/createPayment.js';
+import { enterAdminDashboard } from '../actions/enterAdminDashboard.js';
+import { enterAdminReservations } from '../actions/enterAdminReservations.js';
+import { changeReservationStatus } from '../actions/changeReservationStatus.js';
 
 export function createDispatcher(store, api) {
   return async function dispatch(action) {
@@ -97,6 +100,15 @@ export function createDispatcher(store, api) {
 
       case 'CREATE_PAYMENT':
         return createPayment({ store, api, dispatch, payload });
+
+      case 'ENTER_ADMIN_DASHBOARD':
+        return enterAdminDashboard({ store, dispatch });
+
+      case 'ENTER_ADMIN_RESERVATIONS':
+        return enterAdminReservations({ store, api, dispatch, payload });
+
+      case 'CHANGE_RESERVATION_STATUS':
+        return changeReservationStatus({ store, api, dispatch, payload });
 
       case 'LOGOUT':
         return logout({ store, dispatch });

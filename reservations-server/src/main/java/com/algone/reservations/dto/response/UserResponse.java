@@ -3,6 +3,8 @@ package com.algone.reservations.dto.response;
 import com.algone.reservations.entity.User;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class UserResponse {
     private Long id;
@@ -11,6 +13,7 @@ public class UserResponse {
     private String email;
     private String role;
     private String phone;
+    private LocalDateTime createdAt;
 
     public static UserResponse fromEntity(User user) {
         UserResponse response = new UserResponse();
@@ -20,6 +23,7 @@ public class UserResponse {
         response.email = user.getEmail();
         response.role = user.getRole() != null ? user.getRole().name() : null;
         response.phone = user.getPhone();
+        response.createdAt = user.getCreatedAt();
         return response;
     }
 }

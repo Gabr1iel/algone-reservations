@@ -36,6 +36,12 @@ export function createHandlers(dispatch, viewState) {
     case 'RESERVATION_PAYMENTS':
       return reservationPaymentsHandlers(dispatch, viewState);
 
+    case 'ADMIN_DASHBOARD':
+      return adminDashboardHandlers(dispatch, viewState);
+
+    case 'ADMIN_RESERVATIONS':
+      return adminReservationsHandlers(dispatch, viewState);
+
     case 'ERROR':
       return errorHandlers(dispatch);
 
@@ -56,6 +62,14 @@ export function createLayoutHandlers(dispatch) {
           return dispatch({ type: 'ENTER_USER_DETAIL' });
         case 'MY_RESERVATIONS':
           return dispatch({ type: 'ENTER_MY_RESERVATIONS' });
+        case 'ADMIN_DASHBOARD':
+          return dispatch({ type: 'ENTER_ADMIN_DASHBOARD' });
+        case 'ADMIN_RESERVATIONS':
+          return dispatch({ type: 'ENTER_ADMIN_RESERVATIONS' });
+        case 'ADMIN_USERS':
+          return dispatch({ type: 'ENTER_ADMIN_USERS' });
+        case 'ADMIN_ROOMS':
+          return dispatch({ type: 'ENTER_ADMIN_ROOMS' });
         default:
           console.warn(`Unknown navigation target: ${target}`);
       }
@@ -164,5 +178,36 @@ function reservationPaymentsHandlers(dispatch, viewState) {
     onGoBack: () => dispatch({ type: 'ENTER_MY_RESERVATIONS' }),
     onCreatePayment: (method) =>
         dispatch({ type: 'CREATE_PAYMENT', payload: { method } }),
+  };
+}
+
+function adminDashboardHandlers(dispatch, viewState) {
+  return {
+    onGoBack: () => dispatch({ type: 'ENTER_HOTEL_LIST' }),
+    onNavigate: (target) => {
+      switch (target) {
+        case 'ADMIN_RESERVATIONS':
+          return dispatch({ type: 'ENTER_ADMIN_RESERVATIONS' });
+        case 'ADMIN_USERS':
+          return dispatch({ type: 'ENTER_ADMIN_USERS' });
+        case 'ADMIN_ROOMS':
+          return dispatch({ type: 'ENTER_ADMIN_ROOMS' });
+        default:
+          console.warn(`Unknown admin navigation target: ${target}`);
+      }
+    },
+  };
+}
+
+function adminReservationsHandlers(dispatch, viewState) {
+  return {
+    onGoBack: () => dispatch({ type: 'ENTER_ADMIN_DASHBOARD' }),
+    onStatusFilterChange: (statusFilter) =>
+        dispatch({ type: 'ENTER_ADMIN_RESERVATIONS', payload: { statusFilter } }),
+    onChangeStatus: (reservationId, newStatus) =>
+        dispatch({
+          type: 'CHANGE_RESERVATION_STATUS',
+          payload: { reservationId, newStatus },
+        }),
   };
 }

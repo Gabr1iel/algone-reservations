@@ -15,6 +15,9 @@ public class ReservationResponse {
     private String roomNumber;
     private Long hotelId;
     private String hotelName;
+    private Long userId;
+    private String guestName;
+    private String guestEmail;
     private LocalDate checkIn;
     private LocalDate checkOut;
     private String status;
@@ -33,6 +36,11 @@ public class ReservationResponse {
         response.hotelName = reservation.getRoom() != null && reservation.getRoom().getHotel() != null
                 ? reservation.getRoom().getHotel().getName()
                 : null;
+        response.userId = reservation.getUser() != null ? reservation.getUser().getId() : null;
+        response.guestName = reservation.getUser() != null
+                ? reservation.getUser().getFirstName() + " " + reservation.getUser().getLastName()
+                : null;
+        response.guestEmail = reservation.getUser() != null ? reservation.getUser().getEmail() : null;
         response.checkIn = reservation.getCheckIn();
         response.checkOut = reservation.getCheckOut();
         response.status = reservation.getStatus() != null ? reservation.getStatus().name() : null;

@@ -47,4 +47,23 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("checkOut") LocalDate checkOut,
             @Param("cancelled") ReservationStatus cancelled
     );
+
+    @Query("""
+            SELECT r FROM Reservation r
+            JOIN FETCH r.user u
+            JOIN FETCH r.room rm
+            JOIN FETCH rm.hotel
+            ORDER BY r.createdAt DESC
+            """)
+    List<Reservation> findAllForAdmin();
+
+    @Query("""
+            SELECT r FROM Reservation r
+            JOIN FETCH r.user u
+            JOIN FETCH r.room rm
+            JOIN FETCH rm.hotel
+            WHERE r.status = :status
+            ORDER BY r.createdAt DESC
+            """)
+    List<Reservation> findAllForAdminByStatus(@Param("status") ReservationStatus status);
 }

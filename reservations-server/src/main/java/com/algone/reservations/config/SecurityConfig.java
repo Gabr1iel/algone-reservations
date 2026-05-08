@@ -39,6 +39,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/room-types/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/amenities/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/special-request-types/**").permitAll()
+                    // Admin endpointy — pouze pro ADMIN roli
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     // Vše ostatní bude vyžadovat autentizaci (prozatím zabolukje vše)
                         .anyRequest().authenticated()
                 )

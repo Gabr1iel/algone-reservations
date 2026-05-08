@@ -27,6 +27,22 @@ export function parseUrl(path) {
     return { context: 'HOTEL_DETAIL', hotelId: parts[1] };
   }
 
+  if (parts.length === 1 && parts[0] === 'admin') {
+    return { context: 'ADMIN_DASHBOARD' };
+  }
+
+  if (parts.length === 2 && parts[0] === 'admin' && parts[1] === 'reservations') {
+    return { context: 'ADMIN_RESERVATIONS' };
+  }
+
+  if (parts.length === 2 && parts[0] === 'admin' && parts[1] === 'users') {
+    return { context: 'ADMIN_USERS' };
+  }
+
+  if (parts.length === 2 && parts[0] === 'admin' && parts[1] === 'rooms') {
+    return { context: 'ADMIN_ROOMS' };
+  }
+
   return { context: 'UNKNOWN' };
 }
 
@@ -42,6 +58,14 @@ export function routeToAction(route) {
       return { type: 'ENTER_HOTEL_DETAIL', payload: { hotelId: route.hotelId } };
     case 'ROOM_LIST':
       return { type: 'ENTER_ROOM_LIST', payload: { hotelId: route.hotelId } };
+    case 'ADMIN_DASHBOARD':
+      return { type: 'ENTER_ADMIN_DASHBOARD' };
+    case 'ADMIN_RESERVATIONS':
+      return { type: 'ENTER_ADMIN_RESERVATIONS' };
+    case 'ADMIN_USERS':
+      return { type: 'ENTER_ADMIN_USERS' };
+    case 'ADMIN_ROOMS':
+      return { type: 'ENTER_ADMIN_ROOMS' };
     case 'UNKNOWN':
       return { type: 'ENTER_HOTEL_LIST' };
   }

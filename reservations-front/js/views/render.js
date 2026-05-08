@@ -17,6 +17,8 @@ import { UserEditPasswordView } from './pages/UserEditPasswordView.js';
 import { MyReservationsView } from './pages/MyReservationsView.js';
 import { ReservationCreateView } from './pages/ReservationCreateView.js';
 import { ReservationPaymentsView } from './pages/ReservationPaymentsView.js';
+import { AdminDashboardView } from './pages/AdminDashboardView.js';
+import { AdminReservationsView } from './pages/AdminReservationsView.js';
 
 export function render(root, state, dispatch) {
   root.replaceChildren();
@@ -96,6 +98,14 @@ export function render(root, state, dispatch) {
 
     case 'RESERVATION_PAYMENTS':
       contentElement = ReservationPaymentsView({ viewState, handlers });
+      break;
+
+    case 'ADMIN_DASHBOARD':
+      contentElement = AdminDashboardView({ viewState, handlers });
+      break;
+
+    case 'ADMIN_RESERVATIONS':
+      contentElement = AdminReservationsView({ viewState, handlers });
       break;
 
     default:

@@ -5,6 +5,7 @@ import com.algone.reservations.entity.Reservation;
 import com.algone.reservations.entity.ReservationStatus;
 import com.algone.reservations.entity.Room;
 import com.algone.reservations.entity.User;
+import com.algone.reservations.entity.UserRole;
 import com.algone.reservations.exception.BusinessException;
 import com.algone.reservations.repository.ReservationRepository;
 import com.algone.reservations.repository.RoomRepository;
@@ -18,10 +19,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+
+    private static final Map<ReservationStatus, Set<ReservationStatus>> ALLOWED_TRANSITIONS = Map.of(
+            ReservationStatus.PENDING,    Set.of(ReservationStatus.CONFIRMED, ReservationStatus.CANCELLED),
+            ReservationStatus.CONFIRMED,  Set.of(ReservationStatus.CHECKED_IN, ReservationStatus.CANCELLED),
+            ReservationStatus.CHECKED_IN, Set.of(ReservationStatus.COMPLETED, ReservationStatus.CANCELLED),
+            ReservationStatus.COMPLETED,  Set.of(),
+            ReservationStatus.CANCELLED,  Set.of()
+    );
 
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
@@ -43,6 +55,10 @@ public class ReservationService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("Uživatel nebyl nalezen: " + email));
+
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new BusinessException("Administrátorský účet nemůže vytvářet rezervace.");
+        }
 
         if (request.getCheckIn() == null || request.getCheckOut() == null) {
             throw new BusinessException("Datum příjezdu i odjezdu je povinný.");
@@ -101,6 +117,35 @@ public class ReservationService {
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
+        return reservationRepository.save(reservation);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reservation> getAllForAdmin(Optional<ReservationStatus> statusFilter) {
+        return statusFilter
+                .map(reservationRepository::findAllForAdminByStatus)
+                .orElseGet(reservationRepository::findAllForAdmin);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Reservation changeStatus(Long reservationId, ReservationStatus newStatus) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException("Rezervace nebyla nalezena: " + reservationId));
+
+        ReservationStatus current = reservation.getStatus();
+
+        if (current == newStatus) {
+            return reservation;
+        }
+
+        Set<ReservationStatus> allowed = ALLOWED_TRANSITIONS.getOrDefault(current, Set.of());
+        if (!allowed.contains(newStatus)) {
+            throw new BusinessException(
+                    "Nepovolený přechod stavu rezervace: " + current + " → " + newStatus
+            );
+        }
+
+        reservation.setStatus(newStatus);
         return reservationRepository.save(reservation);
     }
 }

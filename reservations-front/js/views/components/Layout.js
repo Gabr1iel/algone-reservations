@@ -72,6 +72,9 @@ export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = 
 
     if (auth.role !== 'ANONYMOUS') {
       navItems.push({ label: 'Můj profil', action: 'USER_DETAIL', icon: '👤' });
+    }
+
+    if (auth.role !== 'ANONYMOUS' && auth.role !== 'ADMIN') {
       navItems.push({ label: 'Moje rezervace', action: 'MY_RESERVATIONS', icon: '📋' });
     }
 

@@ -133,6 +133,26 @@ export function selectReservationPaymentsView(state) {
   };
 }
 
+export function selectIsAdmin(state) {
+  return state.auth?.role === 'ADMIN';
+}
+
+export function selectAdminDashboardView(state) {
+  return {
+    type: 'ADMIN_DASHBOARD',
+  };
+}
+
+export function selectAdminReservationsView(state) {
+  return {
+    type: 'ADMIN_RESERVATIONS',
+    reservations: state.admin?.reservations ?? [],
+    statusFilter: state.admin?.reservationStatusFilter ?? 'ALL',
+    adminError: state.ui?.adminError ?? null,
+    isSubmitting: state.ui?.isSubmitting ?? false,
+  };
+}
+
 export function selectViewState(state) {
   const { status, errorMessage, mode } = state.ui;
 
@@ -173,6 +193,10 @@ export function selectViewState(state) {
       return selectReservationCreateView(state);
     case 'RESERVATION_PAYMENTS':
       return selectReservationPaymentsView(state);
+    case 'ADMIN_DASHBOARD':
+      return selectAdminDashboardView(state);
+    case 'ADMIN_RESERVATIONS':
+      return selectAdminReservationsView(state);
     default:
       return { type: 'ERROR', message: `Unknown ui mode: ${mode}` };
   }

@@ -432,6 +432,7 @@ Pojmenovaná pravidla vynucovaná na backendu (autoritativní) i na frontendu (U
 | `RULE_ONLY_OWNER_CAN_CANCEL` | Uživatel může zrušit pouze své vlastní rezervace (admin může všechny). |
 | `RULE_CANCEL_ONLY_PENDING_OR_CONFIRMED` | Uživatel může zrušit rezervaci pouze ve stavu PENDING nebo CONFIRMED. |
 | `RULE_STATUS_TRANSITION_VALID` | Změna stavu rezervace musí respektovat stavový automat. |
+| `RULE_ADMIN_CANNOT_RESERVE` | Administrátorský účet nemůže vytvářet rezervace — admin je výhradně správce systému, není host hotelu. |
 
 ### Uživatelé
 
