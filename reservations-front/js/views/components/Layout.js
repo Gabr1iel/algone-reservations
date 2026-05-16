@@ -80,6 +80,9 @@ export function Layout({ hotelName, auth, handlers, contentElement, fullWidth = 
 
     if (auth.role === 'ADMIN') {
       navItems.push({ label: 'Správa', action: 'ADMIN_DASHBOARD', icon: '⚙️' });
+      navItems.push({ label: 'Rezervace', action: 'ADMIN_RESERVATIONS', icon: '📋' });
+      navItems.push({ label: 'Uživatelé', action: 'ADMIN_USERS', icon: '👥' });
+      navItems.push({ label: 'Pokoje', action: 'ADMIN_ROOMS', icon: '🛏️' });
     }
 
     navItems.forEach((item) => {

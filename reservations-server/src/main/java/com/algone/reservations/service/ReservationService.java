@@ -104,7 +104,7 @@ public class ReservationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("Uživatel nebyl nalezen: " + email));
 
-        Reservation reservation = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository.findReservationById(reservationId)
                 .orElseThrow(() -> new BusinessException("Rezervace nebyla nalezena: " + reservationId));
 
         if (!reservation.getUser().getId().equals(user.getId())) {
@@ -129,7 +129,7 @@ public class ReservationService {
 
     @Transactional(rollbackFor = Exception.class)
     public Reservation changeStatus(Long reservationId, ReservationStatus newStatus) {
-        Reservation reservation = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository.findReservationById(reservationId)
                 .orElseThrow(() -> new BusinessException("Rezervace nebyla nalezena: " + reservationId));
 
         ReservationStatus current = reservation.getStatus();

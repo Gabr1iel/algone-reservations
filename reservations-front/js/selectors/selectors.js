@@ -124,12 +124,17 @@ export function selectReservationCreateView(state) {
 
 export function selectReservationPaymentsView(state) {
   const reservationId = state.selectedReservationId;
-  const reservation = (state.myReservations ?? []).find((r) => r.id === reservationId) ?? null;
+  const reservation = [
+    ...(state.myReservations ?? []),
+    ...(state.admin?.reservations ?? []),
+  ].find((r) => r.id === reservationId) ?? null;
   return {
     type: 'RESERVATION_PAYMENTS',
     reservationId,
     reservation,
     payments: state.selectedReservationPayments ?? [],
+    isAdmin: selectIsAdmin(state),
+    adminError: state.ui?.adminError ?? null,
   };
 }
 
@@ -150,6 +155,38 @@ export function selectAdminReservationsView(state) {
     statusFilter: state.admin?.reservationStatusFilter ?? 'ALL',
     adminError: state.ui?.adminError ?? null,
     isSubmitting: state.ui?.isSubmitting ?? false,
+  };
+}
+
+export function selectAdminUsersView(state) {
+  return {
+    type: 'ADMIN_USERS',
+    users: state.admin?.users ?? [],
+    currentUserId: state.auth?.userId ?? null,
+    adminError: state.ui?.adminError ?? null,
+    isSubmitting: state.ui?.isSubmitting ?? false,
+  };
+}
+
+export function selectAdminRoomsView(state) {
+  return {
+    type: 'ADMIN_ROOMS',
+    rooms: state.admin?.rooms ?? [],
+    hotels: state.hotels ?? [],
+    hotelFilter: state.admin?.roomHotelFilter ?? 'ALL',
+    adminError: state.ui?.adminError ?? null,
+  };
+}
+
+export function selectAdminRoomFormView(state) {
+  return {
+    type: 'ADMIN_ROOM_FORM',
+    mode: state.admin?.roomFormMode ?? 'CREATE',
+    room: state.admin?.selectedRoom ?? null,
+    hotels: state.hotels ?? [],
+    roomTypes: state.admin?.roomTypes ?? [],
+    amenities: state.admin?.amenities ?? [],
+    adminError: state.ui?.adminError ?? null,
   };
 }
 
@@ -197,6 +234,12 @@ export function selectViewState(state) {
       return selectAdminDashboardView(state);
     case 'ADMIN_RESERVATIONS':
       return selectAdminReservationsView(state);
+    case 'ADMIN_USERS':
+      return selectAdminUsersView(state);
+    case 'ADMIN_ROOMS':
+      return selectAdminRoomsView(state);
+    case 'ADMIN_ROOM_FORM':
+      return selectAdminRoomFormView(state);
     default:
       return { type: 'ERROR', message: `Unknown ui mode: ${mode}` };
   }

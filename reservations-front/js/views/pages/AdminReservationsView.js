@@ -130,7 +130,7 @@ export function AdminReservationsView({ viewState, handlers }) {
     thead.className = 'bg-slate-50 border-b border-slate-200';
     const headerRow = document.createElement('tr');
 
-    ['ID', 'Host', 'Hotel / Pokoj', 'Termín', 'Cena', 'Stav', 'Akce'].forEach((label) => {
+    ['ID', 'Host', 'Hotel / Pokoj', 'Termín', 'Cena', 'Stav', 'Platby', 'Akce'].forEach((label) => {
         const th = document.createElement('th');
         th.className = 'text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wide';
         th.textContent = label;
@@ -199,6 +199,18 @@ export function AdminReservationsView({ viewState, handlers }) {
         statusBadge.textContent = STATUS_LABELS[r.status] || r.status || '—';
         statusCell.appendChild(statusBadge);
         row.appendChild(statusCell);
+
+        const paymentsCell = document.createElement('td');
+        paymentsCell.className = 'px-4 py-3';
+        const paymentsButton = document.createElement('button');
+        paymentsButton.className = 'bg-slate-200 text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-300 text-xs font-semibold';
+        paymentsButton.textContent = 'Platby';
+        paymentsButton.addEventListener('click', () => {
+            window.location.hash = `#/payments/${r.id}`;
+            handlers.onOpenPayments(r.id);
+        });
+        paymentsCell.appendChild(paymentsButton);
+        row.appendChild(paymentsCell);
 
         // Action: change status
         const actionCell = document.createElement('td');

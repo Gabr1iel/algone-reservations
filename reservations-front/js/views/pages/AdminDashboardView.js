@@ -29,14 +29,14 @@ export function AdminDashboardView({ viewState, handlers }) {
             description: 'Seznam registrovaných uživatelů a jejich správa.',
             icon: '👥',
             target: 'ADMIN_USERS',
-            ready: false,
+            ready: true,
         },
         {
             label: 'Pokoje',
             description: 'Správa pokojů, dostupnost a vybavení.',
             icon: '🛏️',
             target: 'ADMIN_ROOMS',
-            ready: false,
+            ready: true,
         },
     ];
 

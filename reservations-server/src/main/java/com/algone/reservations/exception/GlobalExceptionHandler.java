@@ -1,6 +1,5 @@
 package com.algone.reservations.exception;
 
-import com.algone.reservations.dto.response.ErrorResponse;
 import com.algone.reservations.exception.auth.AuthException;
 import com.algone.reservations.exception.auth.EmailAlreadyExistsException;
 import com.algone.reservations.exception.auth.EmailNotFoundException;
@@ -11,44 +10,49 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+    public ResponseEntity<Map<String, String>> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEmailNotFound(EmailNotFoundException ex) {
+    public ResponseEntity<Map<String, String>> handleEmailNotFound(EmailNotFoundException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(AuthException.class)
-    public ResponseEntity<ErrorResponse> handleAuthException(AuthException ex) {
+    public ResponseEntity<Map<String, String>> handleAuthException(AuthException ex) {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Nesprávný email nebo heslo.");
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex) {
+    public ResponseEntity<Map<String, String>> handleBusiness(BusinessException ex) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflict(ConflictException ex) {
+    public ResponseEntity<Map<String, String>> handleConflict(ConflictException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
@@ -57,7 +61,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+    public ResponseEntity<Map<String, String>> handleUnexpected(Exception ex) {
         ex.printStackTrace();
         String message = ex.getMessage() != null && !ex.getMessage().isBlank()
                 ? ex.getMessage()
@@ -65,13 +69,7 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 
-    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {
-        ErrorResponse response = new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                message,
-                LocalDateTime.now()
-        );
-        return ResponseEntity.status(status).body(response);
+    private ResponseEntity<Map<String, String>> buildResponse(HttpStatus status, String message) {
+        return ResponseEntity.status(status).body(Map.of("message", message));
     }
 }

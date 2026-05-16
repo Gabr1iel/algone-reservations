@@ -23,7 +23,7 @@ public class AdminUserService {
         return userRepository.findAllOrderedByCreatedAtDesc();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long id, Authentication authentication) {
         String currentEmail = authentication.getName();
         User self = userRepository.findByEmail(currentEmail)
@@ -33,7 +33,7 @@ public class AdminUserService {
             throw new BusinessException("Nelze smazat vlastní účet.");
         }
 
-        User target = userRepository.findById(id)
+        User target = userRepository.findUserById(id)
                 .orElseThrow(() -> new BusinessException("Uživatel nebyl nalezen: " + id));
 
         try {

@@ -36,7 +36,7 @@ export function RoomFilterSidebar({ viewState, handlers }) {
     const backBtn = document.createElement('button');
     backBtn.className =
       'flex items-center gap-2 px-5 py-3 text-sm text-blue-600 hover:bg-blue-50 hover:text-blue-800 transition-colors border-b border-slate-100 w-full text-left';
-    backBtn.innerHTML = '&#8592; Zpět na hotel';
+    backBtn.appendChild(document.createTextNode('← Zpět na hotel'));
     backBtn.addEventListener('click', handlers.onGoBack);
     sidebar.appendChild(backBtn);
   }

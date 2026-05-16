@@ -7,8 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
+
+    @Query("SELECT p FROM Payment p JOIN FETCH p.reservation WHERE p.id = :id")
+    Optional<Payment> findPaymentById(@Param("id") Long id);
 
     @Query("""
             SELECT p FROM Payment p

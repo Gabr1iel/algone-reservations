@@ -39,8 +39,24 @@ export function parseUrl(path) {
     return { context: 'ADMIN_USERS' };
   }
 
+  if (parts.length === 3 && parts[0] === 'admin' && parts[1] === 'rooms' && parts[2] === 'new') {
+    return { context: 'ADMIN_ROOM_FORM' };
+  }
+
+  if (parts.length === 4 && parts[0] === 'admin' && parts[1] === 'rooms' && parts[3] === 'edit') {
+    return { context: 'ADMIN_ROOM_FORM', roomId: parts[2] };
+  }
+
   if (parts.length === 2 && parts[0] === 'admin' && parts[1] === 'rooms') {
     return { context: 'ADMIN_ROOMS' };
+  }
+
+  if (parts.length === 2 && parts[0] === 'payments') {
+    return { context: 'RESERVATION_PAYMENTS', reservationId: parts[1] };
+  }
+
+  if (parts.length === 3 && parts[0] === 'admin' && parts[1] === 'payments') {
+    return { context: 'RESERVATION_PAYMENTS', reservationId: parts[2] };
   }
 
   return { context: 'UNKNOWN' };
@@ -66,6 +82,10 @@ export function routeToAction(route) {
       return { type: 'ENTER_ADMIN_USERS' };
     case 'ADMIN_ROOMS':
       return { type: 'ENTER_ADMIN_ROOMS' };
+    case 'ADMIN_ROOM_FORM':
+      return { type: 'ENTER_ADMIN_ROOM_FORM', payload: { roomId: route.roomId } };
+    case 'RESERVATION_PAYMENTS':
+      return { type: 'ENTER_RESERVATION_PAYMENTS', payload: { reservationId: Number(route.reservationId) } };
     case 'UNKNOWN':
       return { type: 'ENTER_HOTEL_LIST' };
   }

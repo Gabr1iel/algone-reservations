@@ -31,4 +31,43 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("roomTypeId") long roomTypeId
     );
+
+    @Query("""
+            SELECT DISTINCT r FROM Room r
+            JOIN FETCH r.hotel
+            JOIN FETCH r.roomType
+            WHERE (:hotelId IS NULL OR r.hotel.id = :hotelId)
+            ORDER BY r.hotel.name, r.roomNumber
+            """)
+    List<Room> findAllForAdmin(@Param("hotelId") Long hotelId);
+
+    @Query("""
+            SELECT DISTINCT r FROM Room r
+            JOIN FETCH r.hotel
+            JOIN FETCH r.roomType
+            WHERE r.id = :id
+            """)
+    Optional<Room> findAdminRoomById(@Param("id") Long id);
+
+    @Query("""
+            SELECT COUNT(r) > 0 FROM Room r
+            WHERE r.hotel.id = :hotelId
+            AND r.roomNumber = :roomNumber
+            """)
+    boolean existsByHotelIdAndRoomNumber(
+            @Param("hotelId") Long hotelId,
+            @Param("roomNumber") String roomNumber
+    );
+
+    @Query("""
+            SELECT COUNT(r) > 0 FROM Room r
+            WHERE r.hotel.id = :hotelId
+            AND r.roomNumber = :roomNumber
+            AND r.id <> :id
+            """)
+    boolean existsByHotelIdAndRoomNumberAndIdNot(
+            @Param("hotelId") Long hotelId,
+            @Param("roomNumber") String roomNumber,
+            @Param("id") Long id
+    );
 }

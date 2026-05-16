@@ -24,6 +24,13 @@ import { createPayment } from '../actions/createPayment.js';
 import { enterAdminDashboard } from '../actions/enterAdminDashboard.js';
 import { enterAdminReservations } from '../actions/enterAdminReservations.js';
 import { changeReservationStatus } from '../actions/changeReservationStatus.js';
+import { enterAdminUsers } from '../actions/enterAdminUsers.js';
+import { deleteUser } from '../actions/deleteUser.js';
+import { enterAdminRooms } from '../actions/enterAdminRooms.js';
+import { enterAdminRoomForm } from '../actions/enterAdminRoomForm.js';
+import { submitRoom } from '../actions/submitRoom.js';
+import { toggleRoomActive } from '../actions/toggleRoomActive.js';
+import { changePaymentStatus } from '../actions/changePaymentStatus.js';
 
 export function createDispatcher(store, api) {
   return async function dispatch(action) {
@@ -109,6 +116,27 @@ export function createDispatcher(store, api) {
 
       case 'CHANGE_RESERVATION_STATUS':
         return changeReservationStatus({ store, api, dispatch, payload });
+
+      case 'ENTER_ADMIN_USERS':
+        return enterAdminUsers({ store, api, dispatch });
+
+      case 'DELETE_USER':
+        return deleteUser({ store, api, dispatch, payload });
+
+      case 'ENTER_ADMIN_ROOMS':
+        return enterAdminRooms({ store, api, dispatch, payload });
+
+      case 'ENTER_ADMIN_ROOM_FORM':
+        return enterAdminRoomForm({ store, api, dispatch, payload });
+
+      case 'SUBMIT_ROOM':
+        return submitRoom({ store, api, dispatch, payload });
+
+      case 'TOGGLE_ROOM_ACTIVE':
+        return toggleRoomActive({ store, api, dispatch, payload });
+
+      case 'CHANGE_PAYMENT_STATUS':
+        return changePaymentStatus({ store, api, dispatch, payload });
 
       case 'LOGOUT':
         return logout({ store, dispatch });

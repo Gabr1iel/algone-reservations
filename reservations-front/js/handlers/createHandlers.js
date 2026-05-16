@@ -42,6 +42,15 @@ export function createHandlers(dispatch, viewState) {
     case 'ADMIN_RESERVATIONS':
       return adminReservationsHandlers(dispatch, viewState);
 
+    case 'ADMIN_USERS':
+      return adminUsersHandlers(dispatch, viewState);
+
+    case 'ADMIN_ROOMS':
+      return adminRoomsHandlers(dispatch, viewState);
+
+    case 'ADMIN_ROOM_FORM':
+      return adminRoomFormHandlers(dispatch, viewState);
+
     case 'ERROR':
       return errorHandlers(dispatch);
 
@@ -175,9 +184,11 @@ function reservationCreateHandlers(dispatch, viewState) {
 
 function reservationPaymentsHandlers(dispatch, viewState) {
   return {
-    onGoBack: () => dispatch({ type: 'ENTER_MY_RESERVATIONS' }),
+    onGoBack: () => dispatch({ type: viewState.isAdmin ? 'ENTER_ADMIN_RESERVATIONS' : 'ENTER_MY_RESERVATIONS' }),
     onCreatePayment: (method) =>
         dispatch({ type: 'CREATE_PAYMENT', payload: { method } }),
+    onChangePaymentStatus: (paymentId, newStatus) =>
+        dispatch({ type: 'CHANGE_PAYMENT_STATUS', payload: { paymentId, newStatus } }),
   };
 }
 
@@ -209,5 +220,33 @@ function adminReservationsHandlers(dispatch, viewState) {
           type: 'CHANGE_RESERVATION_STATUS',
           payload: { reservationId, newStatus },
         }),
+    onOpenPayments: (reservationId) =>
+        dispatch({ type: 'ENTER_RESERVATION_PAYMENTS', payload: { reservationId } }),
+  };
+}
+
+function adminUsersHandlers(dispatch, viewState) {
+  return {
+    onGoBack: () => dispatch({ type: 'ENTER_ADMIN_DASHBOARD' }),
+    onDeleteUser: (userId) => dispatch({ type: 'DELETE_USER', payload: { userId } }),
+  };
+}
+
+function adminRoomsHandlers(dispatch, viewState) {
+  return {
+    onGoBack: () => dispatch({ type: 'ENTER_ADMIN_DASHBOARD' }),
+    onCreateRoom: () => dispatch({ type: 'ENTER_ADMIN_ROOM_FORM' }),
+    onEditRoom: (roomId) => dispatch({ type: 'ENTER_ADMIN_ROOM_FORM', payload: { roomId } }),
+    onToggleActive: (roomId, active) =>
+        dispatch({ type: 'TOGGLE_ROOM_ACTIVE', payload: { roomId, active } }),
+    onHotelFilterChange: (hotelFilter) =>
+        dispatch({ type: 'ENTER_ADMIN_ROOMS', payload: { hotelFilter } }),
+  };
+}
+
+function adminRoomFormHandlers(dispatch, viewState) {
+  return {
+    onCancel: () => dispatch({ type: 'ENTER_ADMIN_ROOMS' }),
+    onSubmitRoom: (payload) => dispatch({ type: 'SUBMIT_ROOM', payload }),
   };
 }

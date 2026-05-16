@@ -1,7 +1,13 @@
 const CASH_DEPOSIT_RATIO = 0.30;
+const PAYMENT_TRANSITIONS = {
+    PENDING: ['PAID', 'FAILED'],
+    PAID: ['REFUNDED'],
+    FAILED: [],
+    REFUNDED: [],
+};
 
 export function ReservationPaymentsView({ viewState, handlers }) {
-    const { payments, reservationId, reservation } = viewState;
+    const { payments, reservationId, reservation, isAdmin, adminError } = viewState;
 
     const container = document.createElement('div');
     container.className = 'max-w-3xl mx-auto py-10 px-6';
@@ -10,10 +16,9 @@ export function ReservationPaymentsView({ viewState, handlers }) {
     header.className = 'flex items-center justify-between mb-8';
 
     const titleWrap = document.createElement('div');
-
     const title = document.createElement('h1');
     title.className = 'text-3xl font-bold text-slate-800';
-    title.textContent = 'Zaplatit rezervaci';
+    title.textContent = isAdmin ? 'Platby rezervace' : 'Zaplatit rezervaci';
 
     const subtitle = document.createElement('p');
     subtitle.className = 'text-slate-500 mt-1';
@@ -23,8 +28,7 @@ export function ReservationPaymentsView({ viewState, handlers }) {
     titleWrap.appendChild(subtitle);
 
     const backButton = document.createElement('button');
-    backButton.className =
-        'bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition-colors';
+    backButton.className = 'bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition-colors';
     backButton.textContent = 'Zpět';
     backButton.addEventListener('click', handlers.onGoBack);
 
@@ -32,20 +36,30 @@ export function ReservationPaymentsView({ viewState, handlers }) {
     header.appendChild(backButton);
     container.appendChild(header);
 
-    const hasPaidPayment = (payments ?? []).some((p) => p.status === 'PAID');
+    if (adminError) {
+        const error = document.createElement('div');
+        error.className = 'mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg';
+        error.textContent = adminError;
+        container.appendChild(error);
+    }
 
+    if (isAdmin) {
+        container.appendChild(renderPaymentHistory(payments, { isAdmin, handlers }));
+        return container;
+    }
+
+    const hasPaidPayment = (payments ?? []).some((p) => p.status === 'PAID');
     if (hasPaidPayment) {
         container.appendChild(renderPaidInfo());
-        container.appendChild(renderPaymentHistory(payments));
+        container.appendChild(renderPaymentHistory(payments, { isAdmin, handlers }));
         return container;
     }
 
     const totalPrice = reservation?.totalPrice != null ? Number(reservation.totalPrice) : null;
-
     container.appendChild(renderPaymentForm({ totalPrice, handlers }));
 
     if ((payments ?? []).length > 0) {
-        container.appendChild(renderPaymentHistory(payments));
+        container.appendChild(renderPaymentHistory(payments, { isAdmin, handlers }));
     }
 
     return container;
@@ -53,8 +67,7 @@ export function ReservationPaymentsView({ viewState, handlers }) {
 
 function renderPaidInfo() {
     const box = document.createElement('div');
-    box.className =
-        'bg-green-50 border border-green-200 rounded-2xl p-6 mb-6 flex items-center gap-4';
+    box.className = 'bg-green-50 border border-green-200 rounded-2xl p-6 mb-6 flex items-center gap-4';
 
     const icon = document.createElement('div');
     icon.className = 'text-3xl';
@@ -101,7 +114,6 @@ function renderPaymentForm({ totalPrice, handlers }) {
 
     const cardMethodBtn = createMethodButton('💳 Kartou', 'Platba celé částky');
     const cashMethodBtn = createMethodButton('💵 Hotovostí', 'Záloha 30 %, zbytek na recepci');
-
     const formArea = document.createElement('div');
 
     function selectMethod(method) {
@@ -124,8 +136,7 @@ function renderPaymentForm({ totalPrice, handlers }) {
 function createMethodButton(title, hint) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className =
-        'text-left px-4 py-4 rounded-lg border-2 border-slate-200 hover:border-blue-400 transition-colors';
+    btn.className = 'text-left px-4 py-4 rounded-lg border-2 border-slate-200 hover:border-blue-400 transition-colors';
     const titleEl = document.createElement('div');
     titleEl.className = 'font-semibold text-slate-800';
     titleEl.textContent = title;
@@ -149,36 +160,22 @@ function setMethodButtonActive(btn, active) {
 
 function renderMethodForm({ method, totalPrice, handlers }) {
     const wrap = document.createElement('div');
-
     const isCash = method === 'CASH';
-    const amount = isCash && totalPrice != null
-        ? totalPrice * CASH_DEPOSIT_RATIO
-        : totalPrice;
+    const amount = isCash && totalPrice != null ? totalPrice * CASH_DEPOSIT_RATIO : totalPrice;
     const amountLabelText = isCash ? 'K zaplacení (záloha 30 %)' : 'K zaplacení';
     const submitText = isCash ? 'Zaplatit zálohu' : 'Zaplatit';
 
     if (isCash) {
         const info = document.createElement('div');
-        info.className =
-            'px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-900 mb-4';
-        info.textContent =
-            'Zaplatíte zálohu ve výši 30 % z celkové částky. Zbývajících 70 % uhradíte v hotovosti při příjezdu na recepci.';
+        info.className = 'px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-900 mb-4';
+        info.textContent = 'Zaplatíte zálohu ve výši 30 % z celkové částky. Zbytek uhradíte při příjezdu na recepci.';
         wrap.appendChild(info);
     }
 
     const form = document.createElement('form');
     form.className = 'grid gap-3';
-
-    const cardNumber = createField({
-        label: 'Číslo karty',
-        placeholder: '1234 5678 9012 3456',
-        maxLength: 19,
-    });
-    const cardHolder = createField({
-        label: 'Jméno držitele',
-        placeholder: 'JAN NOVAK',
-    });
-
+    const cardNumber = createField({ label: 'Číslo karty', placeholder: '1234 5678 9012 3456', maxLength: 19 });
+    const cardHolder = createField({ label: 'Jméno držitele', placeholder: 'JAN NOVAK' });
     const rowInline = document.createElement('div');
     rowInline.className = 'grid grid-cols-2 gap-3';
     const expiry = createField({ label: 'Platnost', placeholder: 'MM/RR', maxLength: 5 });
@@ -191,8 +188,7 @@ function renderMethodForm({ method, totalPrice, handlers }) {
     form.appendChild(rowInline);
 
     const amountBox = document.createElement('div');
-    amountBox.className =
-        'mt-4 flex items-baseline justify-between px-4 py-3 rounded-lg bg-blue-50 border border-blue-100';
+    amountBox.className = 'mt-4 flex items-baseline justify-between px-4 py-3 rounded-lg bg-blue-50 border border-blue-100';
     const amountLabel = document.createElement('span');
     amountLabel.className = 'text-sm text-blue-800';
     amountLabel.textContent = amountLabelText;
@@ -205,8 +201,7 @@ function renderMethodForm({ method, totalPrice, handlers }) {
 
     const submit = document.createElement('button');
     submit.type = 'submit';
-    submit.className =
-        'mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors';
+    submit.className = 'mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors';
     submit.textContent = submitText;
     form.appendChild(submit);
 
@@ -233,14 +228,13 @@ function createField({ label, placeholder, maxLength }) {
     input.type = 'text';
     input.placeholder = placeholder ?? '';
     if (maxLength) input.maxLength = maxLength;
-    input.className =
-        'w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:outline-none';
+    input.className = 'w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:outline-none';
     wrap.appendChild(labelEl);
     wrap.appendChild(input);
     return { wrap, input };
 }
 
-function renderPaymentHistory(payments) {
+function renderPaymentHistory(payments, { isAdmin = false, handlers } = {}) {
     const section = document.createElement('div');
     section.className = 'mt-8';
 
@@ -249,13 +243,20 @@ function renderPaymentHistory(payments) {
     heading.textContent = 'Historie plateb';
     section.appendChild(heading);
 
+    if (!payments || payments.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'bg-white rounded-xl border border-slate-200 p-6 text-center text-slate-400';
+        empty.textContent = 'Žádné platby.';
+        section.appendChild(empty);
+        return section;
+    }
+
     const list = document.createElement('div');
     list.className = 'grid gap-3';
 
-    (payments ?? []).forEach((payment) => {
+    payments.forEach((payment) => {
         const row = document.createElement('div');
-        row.className =
-            'bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between';
+        row.className = 'bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between';
 
         const left = document.createElement('div');
         const amount = document.createElement('div');
@@ -268,17 +269,76 @@ function renderPaymentHistory(payments) {
         left.appendChild(meta);
 
         const status = document.createElement('span');
-        status.className =
-            'px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-100';
+        status.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-100';
         status.textContent = payment.status || '—';
 
+        const right = document.createElement('div');
+        right.className = 'flex items-center gap-3';
+        right.appendChild(status);
+
+        if (isAdmin) {
+            const allowed = PAYMENT_TRANSITIONS[payment.status] ?? [];
+            const changeButton = document.createElement('button');
+            changeButton.className = allowed.length > 0
+                ? 'bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-lg'
+                : 'bg-slate-100 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-not-allowed';
+            changeButton.textContent = 'Změnit stav';
+            changeButton.disabled = allowed.length === 0;
+            changeButton.addEventListener('click', () => showPaymentStatusModal({ payment, allowed, handlers }));
+            right.appendChild(changeButton);
+        }
+
         row.appendChild(left);
-        row.appendChild(status);
+        row.appendChild(right);
         list.appendChild(row);
     });
 
     section.appendChild(list);
     return section;
+}
+
+function showPaymentStatusModal({ payment, allowed, handlers }) {
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center px-4';
+
+    const modal = document.createElement('div');
+    modal.className = 'w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 p-6';
+
+    const title = document.createElement('h2');
+    title.className = 'text-lg font-semibold text-slate-800 mb-4';
+    title.textContent = `Změnit stav platby #${payment.id}`;
+
+    const select = document.createElement('select');
+    select.className = 'w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:outline-none mb-6';
+    allowed.forEach((status) => {
+        const option = document.createElement('option');
+        option.value = status;
+        option.textContent = status;
+        select.appendChild(option);
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'flex justify-end gap-3';
+    const cancel = document.createElement('button');
+    cancel.className = 'px-4 py-2 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300';
+    cancel.textContent = 'Zrušit';
+    cancel.addEventListener('click', () => overlay.remove());
+
+    const submit = document.createElement('button');
+    submit.className = 'px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700';
+    submit.textContent = 'Uložit';
+    submit.addEventListener('click', () => {
+        overlay.remove();
+        handlers.onChangePaymentStatus(payment.id, select.value);
+    });
+
+    actions.appendChild(cancel);
+    actions.appendChild(submit);
+    modal.appendChild(title);
+    modal.appendChild(select);
+    modal.appendChild(actions);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
 }
 
 function formatPrice(value) {

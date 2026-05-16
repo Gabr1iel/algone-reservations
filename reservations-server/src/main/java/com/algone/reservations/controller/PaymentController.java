@@ -1,5 +1,6 @@
 package com.algone.reservations.controller;
 
+import com.algone.reservations.dto.request.ChangePaymentStatusRequest;
 import com.algone.reservations.dto.request.CreatePaymentRequest;
 import com.algone.reservations.dto.response.PaymentResponse;
 import com.algone.reservations.service.PaymentService;
@@ -7,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,5 +46,18 @@ public class PaymentController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(payment);
+    }
+
+    @PatchMapping("/admin/payments/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PaymentResponse> changeStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangePaymentStatusRequest request
+    ) {
+        PaymentResponse payment = PaymentResponse.fromEntity(
+                paymentService.changeStatus(id, request.getStatus())
+        );
+
+        return ResponseEntity.ok(payment);
     }
 }

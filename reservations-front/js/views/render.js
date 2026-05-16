@@ -19,6 +19,9 @@ import { ReservationCreateView } from './pages/ReservationCreateView.js';
 import { ReservationPaymentsView } from './pages/ReservationPaymentsView.js';
 import { AdminDashboardView } from './pages/AdminDashboardView.js';
 import { AdminReservationsView } from './pages/AdminReservationsView.js';
+import { AdminUsersView } from './pages/AdminUsersView.js';
+import { AdminRoomsView } from './pages/AdminRoomsView.js';
+import { AdminRoomFormView } from './pages/AdminRoomFormView.js';
 
 export function render(root, state, dispatch) {
   root.replaceChildren();
@@ -106,6 +109,18 @@ export function render(root, state, dispatch) {
 
     case 'ADMIN_RESERVATIONS':
       contentElement = AdminReservationsView({ viewState, handlers });
+      break;
+
+    case 'ADMIN_USERS':
+      contentElement = AdminUsersView({ viewState, handlers });
+      break;
+
+    case 'ADMIN_ROOMS':
+      contentElement = AdminRoomsView({ viewState, handlers });
+      break;
+
+    case 'ADMIN_ROOM_FORM':
+      contentElement = AdminRoomFormView({ viewState, handlers });
       break;
 
     default:

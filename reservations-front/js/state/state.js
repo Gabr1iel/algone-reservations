@@ -15,6 +15,11 @@ export function createInitialState() {
       reservations: [],
       users: [],
       rooms: [],
+      selectedRoom: null,
+      roomTypes: [],
+      amenities: [],
+      roomFormMode: 'CREATE',
+      roomHotelFilter: 'ALL',
       reservationStatusFilter: 'ALL',
     },
 
